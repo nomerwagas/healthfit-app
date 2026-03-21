@@ -1,0 +1,92 @@
+# cloudbuild.yaml — GCP Cloud Build CI/CD Pipeline
+# Builds Docker image and deploys to Cloud Run
+#
+# Required Secret Manager secrets (set up in GCP Console):
+#   - WEATHER_API_KEY
+#   - FIREBASE_API_KEY
+#   - FIREBASE_AUTH_DOMAIN
+#   - FIREBASE_PROJECT_ID
+#   - FIREBASE_STORAGE_BUCKET
+#   - FIREBASE_MESSAGING_SENDER_ID
+#   - FIREBASE_APP_ID
+
+steps:
+
+  # ── Step 1: Fetch secrets from GCP Secret Manager ──────────────────────────
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'fetch-secrets'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Fetching secrets from Secret Manager..."
+        gcloud secrets versions access latest --secret="WEATHER_API_KEY" > /workspace/WEATHER_API_KEY.txt
+        gcloud secrets versions access latest --secret="FIREBASE_API_KEY" > /workspace/FIREBASE_API_KEY.txt
+        gcloud secrets versions access latest --secret="FIREBASE_AUTH_DOMAIN" > /workspace/FIREBASE_AUTH_DOMAIN.txt
+        gcloud secrets versions access latest --secret="FIREBASE_PROJECT_ID" > /workspace/FIREBASE_PROJECT_ID.txt
+        gcloud secrets versions access latest --secret="FIREBASE_STORAGE_BUCKET" > /workspace/FIREBASE_STORAGE_BUCKET.txt
+        gcloud secrets versions access latest --secret="FIREBASE_MESSAGING_SENDER_ID" > /workspace/FIREBASE_MESSAGING_SENDER_ID.txt
+        gcloud secrets versions access latest --secret="FIREBASE_APP_ID" > /workspace/FIREBASE_APP_ID.txt
+        echo "Secrets fetched successfully."
+
+  # ── Step 2: Build Docker image with injected secrets ───────────────────────
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-image'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker build \
+          --build-arg WEATHER_API_KEY=$(cat /workspace/WEATHER_API_KEY.txt) \
+          --build-arg FIREBASE_API_KEY=$(cat /workspace/FIREBASE_API_KEY.txt) \
+          --build-arg FIREBASE_AUTH_DOMAIN=$(cat /workspace/FIREBASE_AUTH_DOMAIN.txt) \
+          --build-arg FIREBASE_PROJECT_ID=$(cat /workspace/FIREBASE_PROJECT_ID.txt) \
+          --build-arg FIREBASE_STORAGE_BUCKET=$(cat /workspace/FIREBASE_STORAGE_BUCKET.txt) \
+          --build-arg FIREBASE_MESSAGING_SENDER_ID=$(cat /workspace/FIREBASE_MESSAGING_SENDER_ID.txt) \
+          --build-arg FIREBASE_APP_ID=$(cat /workspace/FIREBASE_APP_ID.txt) \
+          -t gcr.io/$PROJECT_ID/healthfit-app:$BUILD_ID \
+          -t gcr.io/$PROJECT_ID/healthfit-app:latest \
+          .
+
+  # ── Step 3: Push image to Google Container Registry ─────────────────────────
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-image'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/healthfit-app:$BUILD_ID'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-latest'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/healthfit-app:latest'
+
+  # ── Step 4: Deploy to Cloud Run ─────────────────────────────────────────────
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'deploy-cloud-run'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'healthfit-app'
+      - '--image=gcr.io/$PROJECT_ID/healthfit-app:$BUILD_ID'
+      - '--region=asia-southeast1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=8080'
+      - '--memory=512Mi'
+      - '--cpu=1'
+      - '--max-instances=10'
+      - '--min-instances=0'
+
+# Store built images in GCR
+images:
+  - 'gcr.io/$PROJECT_ID/healthfit-app:$BUILD_ID'
+  - 'gcr.io/$PROJECT_ID/healthfit-app:latest'
+
+# Build options
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+
+# Build timeout (Flutter builds can take time)
+timeout: '1800s'

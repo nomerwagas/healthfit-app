@@ -1,0 +1,26 @@
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+*.g.dart
+
+# Firebase — never push these
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+
+# API keys
+.env
+*.env
+run.bat
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
