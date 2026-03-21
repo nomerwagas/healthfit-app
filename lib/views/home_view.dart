@@ -59,33 +59,26 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final userVm = context.watch<UserViewModel>();
-    final weatherVm = context.watch<WeatherViewModel>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SessionAwareWrapper(
       onSessionExpired: _onSessionExpired,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(_currentIndex == 0 ? 'HEALTHFIT' : 'MY PROFILE'),
-          actions: [
-            if (_currentIndex == 0)
-              IconButton(
-                icon: const Icon(Icons.refresh_rounded),
-                onPressed: () {
-                  if (_cityCtrl.text.isNotEmpty && userVm.user != null) {
-                    weatherVm.fetchWeather(_cityCtrl.text, userVm.user!);
-                  }
-                },
-              ),
-          ],
-        ),
+        // ── No appbar on dashboard — it's inside the scrollview ─────────────
+        appBar:
+            _currentIndex == 1 ? AppBar(title: const Text('MY PROFILE')) : null,
+
         body: IndexedStack(
           index: _currentIndex,
           children: [
-            _DashboardTab(cityCtrl: _cityCtrl),
+            _DashboardTab(
+              cityCtrl: _cityCtrl,
+              onGoToProfile: () => setState(() => _currentIndex = 1),
+            ),
             const ProfileView(),
           ],
         ),
+
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
             border: Border(
@@ -119,213 +112,280 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
+// ── Dashboard Tab ─────────────────────────────────────────────────────────────
 class _DashboardTab extends StatelessWidget {
   final TextEditingController cityCtrl;
-  const _DashboardTab({required this.cityCtrl});
+  final VoidCallback onGoToProfile;
+
+  const _DashboardTab({
+    required this.cityCtrl,
+    required this.onGoToProfile,
+  });
 
   @override
   Widget build(BuildContext context) {
     final userVm = context.watch<UserViewModel>();
     final weatherVm = context.watch<WeatherViewModel>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final goldColor = isDark ? AppColors.gold : AppColors.goldDark;
-    final textColor = isDark ? AppColors.textLight : AppColors.textDark;
-    final mutedColor =
+    final goldCol = isDark ? AppColors.gold : AppColors.goldDark;
+    final textCol = isDark ? AppColors.textLight : AppColors.textDark;
+    final mutedCol =
         isDark ? AppColors.textLightMuted : AppColors.textDarkMuted;
     final pillBg = isDark ? AppColors.black3 : AppColors.lightSurf;
     final pillBorder =
         isDark ? AppColors.borderGoldDark : AppColors.borderGoldLight;
+    final user = userVm.user;
 
-    return RefreshIndicator(
-      color: goldColor,
-      onRefresh: () async {
-        if (cityCtrl.text.isNotEmpty && userVm.user != null) {
-          await weatherVm.fetchWeather(cityCtrl.text, userVm.user!);
-        }
-      },
-      child: CustomScrollView(
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // ── Greeting ─────────────────────────────────────────────
-                if (userVm.user != null) ...[
-                  Text('Good ${_greeting()},',
-                      style: TextStyle(
-                          color: mutedColor, fontSize: 13, letterSpacing: 0.5)),
-                  const SizedBox(height: 2),
-                  Text(
-                    userVm.user!.fullName.split(' ').first.toUpperCase(),
-                    style: TextStyle(
-                        color: textColor,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Profile pill
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: pillBg,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: pillBorder, width: 0.8),
-                    ),
-                    child: Row(children: [
-                      Icon(Icons.person_outline_rounded,
-                          size: 14, color: goldColor),
-                      const SizedBox(width: 8),
+    return SafeArea(
+      child: RefreshIndicator(
+        color: goldCol,
+        onRefresh: () async {
+          if (cityCtrl.text.isNotEmpty && userVm.user != null) {
+            await weatherVm.fetchWeather(cityCtrl.text, userVm.user!);
+          }
+        },
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  // ── Greeting row with profile pic ───────────────────────
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Left: greeting text
                       Expanded(
-                        child: Text(
-                          'Age ${userVm.user!.age}  ·  '
-                          '${userVm.user!.weight}kg  ·  '
-                          '${userVm.user!.weightCategory}  ·  '
-                          '${userVm.user!.ageGroup == 'senior' ? 'Senior (50+)' : 'Young (<50)'}',
-                          style: TextStyle(
-                              color: mutedColor,
-                              fontSize: 10,
-                              letterSpacing: 0.3),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Good ${_greeting()},',
+                                style: TextStyle(
+                                    color: mutedCol,
+                                    fontSize: 13,
+                                    letterSpacing: 0.5)),
+                            const SizedBox(height: 2),
+                            Text(
+                              user != null
+                                  ? user.fullName.split(' ').first.toUpperCase()
+                                  : '',
+                              style: TextStyle(
+                                  color: textCol,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1),
+                            ),
+                          ],
                         ),
                       ),
-                    ]),
-                  ),
-                  const SizedBox(height: 16),
-                ],
 
-                // ── City search ───────────────────────────────────────────
-                Row(children: [
-                  Expanded(
-                    child: TextField(
-                      controller: cityCtrl,
-                      style: TextStyle(color: textColor, fontSize: 14),
-                      decoration: const InputDecoration(
-                        hintText: 'Enter your city...',
-                        prefixIcon: Icon(Icons.search_rounded),
+                      // Right: profile picture avatar
+                      GestureDetector(
+                        onTap: onGoToProfile,
+                        child: Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: goldCol, width: 2),
+                            color: pillBg,
+                          ),
+                          child: ClipOval(
+                            child: user?.profilePictureUrl != null &&
+                                    user!.profilePictureUrl!.isNotEmpty
+                                // ── Actual profile picture ────────────────
+                                ? Image.network(
+                                    user.profilePictureUrl!,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (ctx, child, progress) {
+                                      if (progress == null) return child;
+                                      return Center(
+                                        child: SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2, color: goldCol),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (_, __, ___) =>
+                                        _InitialsWidget(
+                                            user: user,
+                                            goldCol: goldCol,
+                                            fontSize: 20),
+                                  )
+                                // ── Initials fallback ─────────────────────
+                                : _InitialsWidget(
+                                    user: user, goldCol: goldCol, fontSize: 20),
+                          ),
+                        ),
                       ),
-                      onSubmitted: (city) {
-                        if (userVm.user != null) {
-                          weatherVm.fetchWeather(city, userVm.user!);
-                        }
-                      },
-                    ),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: FilledButton(
-                      onPressed: () {
-                        if (cityCtrl.text.isNotEmpty && userVm.user != null) {
-                          weatherVm.fetchWeather(cityCtrl.text, userVm.user!);
-                        }
-                      },
-                      style: FilledButton.styleFrom(padding: EdgeInsets.zero),
-                      child: const Icon(Icons.cloud_rounded, size: 20),
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
-                // ── Error ─────────────────────────────────────────────────
-                if (weatherVm.error != null)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(10),
-                      border:
-                          Border.all(color: AppColors.error.withOpacity(0.3)),
-                    ),
-                    child: Text(weatherVm.error!,
-                        style: const TextStyle(
-                            color: AppColors.error, fontSize: 13)),
-                  ),
-
-                // ── Loading ───────────────────────────────────────────────
-                if (weatherVm.loading)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 40),
-                    child: Center(
-                        child: CircularProgressIndicator(color: goldColor)),
-                  ),
-
-                // ── Weather + Activities ──────────────────────────────────
-                if (weatherVm.weather != null && !weatherVm.loading) ...[
-                  WeatherCard(weather: weatherVm.weather!),
-                  const SizedBox(height: 20),
-                  Row(children: [
+                  // ── Profile info pill ─────────────────────────────────────
+                  if (user != null)
                     Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: pillBg,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: pillBorder, width: 0.8),
+                      ),
+                      child: Row(children: [
+                        Icon(Icons.person_outline_rounded,
+                            size: 14, color: goldCol),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Age ${user.age}  ·  ${user.weight}kg  ·  '
+                            '${user.weightCategory}  ·  '
+                            '${user.ageGroup == 'senior' ? 'Senior (50+)' : 'Young (<50)'}',
+                            style: TextStyle(
+                                color: mutedCol,
+                                fontSize: 10,
+                                letterSpacing: 0.3),
+                          ),
+                        ),
+                      ]),
+                    ),
+                  const SizedBox(height: 16),
+
+                  // ── City search ───────────────────────────────────────────
+                  Row(children: [
+                    Expanded(
+                      child: TextField(
+                        controller: cityCtrl,
+                        style: TextStyle(color: textCol, fontSize: 14),
+                        decoration: const InputDecoration(
+                          hintText: 'Enter your city...',
+                          prefixIcon: Icon(Icons.search_rounded),
+                        ),
+                        onSubmitted: (city) {
+                          if (userVm.user != null) {
+                            weatherVm.fetchWeather(city, userVm.user!);
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: FilledButton(
+                        onPressed: () {
+                          if (cityCtrl.text.isNotEmpty && userVm.user != null) {
+                            weatherVm.fetchWeather(cityCtrl.text, userVm.user!);
+                          }
+                        },
+                        style: FilledButton.styleFrom(padding: EdgeInsets.zero),
+                        child: const Icon(Icons.cloud_rounded, size: 20),
+                      ),
+                    ),
+                  ]),
+                  const SizedBox(height: 16),
+
+                  // ── Error ─────────────────────────────────────────────────
+                  if (weatherVm.error != null)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border:
+                            Border.all(color: AppColors.error.withOpacity(0.3)),
+                      ),
+                      child: Text(weatherVm.error!,
+                          style: const TextStyle(
+                              color: AppColors.error, fontSize: 13)),
+                    ),
+
+                  // ── Loading ───────────────────────────────────────────────
+                  if (weatherVm.loading)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: Center(
+                          child: CircularProgressIndicator(color: goldCol)),
+                    ),
+
+                  // ── Weather + Activities ──────────────────────────────────
+                  if (weatherVm.weather != null && !weatherVm.loading) ...[
+                    WeatherCard(weather: weatherVm.weather!),
+                    const SizedBox(height: 20),
+                    Row(children: [
+                      Container(
                         width: 3,
                         height: 16,
                         decoration: BoxDecoration(
-                            color: goldColor,
-                            borderRadius: BorderRadius.circular(2))),
-                    const SizedBox(width: 8),
-                    Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('SUGGESTED ACTIVITIES',
-                              style: TextStyle(
-                                  color: textColor,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 1)),
-                          Text(
-                            '${weatherVm.weather!.condition} · '
-                            'Age ${userVm.user?.age} · '
-                            '${userVm.user?.weightCategory}',
-                            style: TextStyle(
-                                color: mutedColor,
-                                fontSize: 9,
-                                letterSpacing: 0.3),
-                          ),
-                        ]),
-                  ]),
-                  const SizedBox(height: 12),
-                  ...weatherVm.activities.map((a) => Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: ActivityCard(activity: a),
-                      )),
-                ],
-
-                // ── Empty state ───────────────────────────────────────────
-                if (weatherVm.weather == null &&
-                    !weatherVm.loading &&
-                    weatherVm.error == null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 60),
-                    child: Column(children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: pillBorder, width: 0.8),
-                          color: pillBg,
-                        ),
-                        child: Icon(Icons.cloud_outlined,
-                            size: 36, color: goldColor),
+                            color: goldCol,
+                            borderRadius: BorderRadius.circular(2)),
                       ),
-                      const SizedBox(height: 16),
-                      Text('Enter your city',
-                          style: TextStyle(
-                              color: textColor,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 4),
-                      Text('to get personalized activities',
-                          style: TextStyle(color: mutedColor, fontSize: 13)),
+                      const SizedBox(width: 8),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('SUGGESTED ACTIVITIES',
+                                style: TextStyle(
+                                    color: textCol,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 1)),
+                            Text(
+                              '${weatherVm.weather!.condition} · '
+                              'Age ${userVm.user?.age} · '
+                              '${userVm.user?.weightCategory}',
+                              style: TextStyle(
+                                  color: mutedCol,
+                                  fontSize: 9,
+                                  letterSpacing: 0.3),
+                            ),
+                          ]),
                     ]),
-                  ),
+                    const SizedBox(height: 12),
+                    ...weatherVm.activities.map((a) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: ActivityCard(activity: a),
+                        )),
+                  ],
 
-                const SizedBox(height: 20),
-              ]),
+                  // ── Empty state ───────────────────────────────────────────
+                  if (weatherVm.weather == null &&
+                      !weatherVm.loading &&
+                      weatherVm.error == null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 60),
+                      child: Column(children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: pillBorder, width: 0.8),
+                            color: pillBg,
+                          ),
+                          child: Icon(Icons.cloud_outlined,
+                              size: 36, color: goldCol),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Enter your city',
+                            style: TextStyle(
+                                color: textCol,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 4),
+                        Text('to get personalized activities',
+                            style: TextStyle(color: mutedCol, fontSize: 13)),
+                      ]),
+                    ),
+
+                  const SizedBox(height: 20),
+                ]),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -335,5 +395,35 @@ class _DashboardTab extends StatelessWidget {
     if (h < 12) return 'morning';
     if (h < 17) return 'afternoon';
     return 'evening';
+  }
+}
+
+// ── Initials widget ───────────────────────────────────────────────────────────
+class _InitialsWidget extends StatelessWidget {
+  final dynamic user;
+  final Color goldCol;
+  final double fontSize;
+
+  const _InitialsWidget({
+    required this.user,
+    required this.goldCol,
+    this.fontSize = 16,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final initial = (user?.fullName?.isNotEmpty == true)
+        ? (user!.fullName as String)[0].toUpperCase()
+        : '?';
+    return Center(
+      child: Text(
+        initial,
+        style: TextStyle(
+          color: goldCol,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
   }
 }
