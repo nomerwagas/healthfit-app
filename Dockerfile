@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Flutter
-ENV FLUTTER_VERSION=3.22.0
+ENV FLUTTER_VERSION=3.41.2
 RUN git clone https://github.com/flutter/flutter.git /flutter \
     && cd /flutter \
     && git checkout $FLUTTER_VERSION
