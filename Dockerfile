@@ -5,7 +5,9 @@
 # ════════════════════════════════════════════════════════════════
 
 # ── Stage 1: Build ───────────────────────────────────────────────────────────
-FROM debian:latest AS build-env
+# Use debian:bookworm (stable) instead of debian:latest
+# debian:latest changed to trixie which doesn't have openjdk-17-jdk
+FROM debian:bookworm-slim AS build-env
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -38,7 +40,6 @@ COPY . .
 RUN flutter pub get
 
 # Build Flutter web with injected API keys via --dart-define
-# Keys are passed as Docker build args → dart-define at build time
 ARG WEATHER_API_KEY
 ARG FIREBASE_API_KEY
 ARG FIREBASE_AUTH_DOMAIN
@@ -65,7 +66,7 @@ COPY --from=build-env /app/build/web /usr/share/nginx/html
 # Copy custom nginx config for Flutter web (handles routing)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port for GCP Cloud Run
+# Expose port
 EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]
