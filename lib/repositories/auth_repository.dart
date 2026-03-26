@@ -108,17 +108,26 @@ class AuthRepository {
     return await _saveGoogleUser(cred);
   }
 
-  // Called once on app startup (web only) to pick up the redirect result.
-  Future<UserModel?> getWebRedirectResult() async {
-    if (!kIsWeb) return null;
+  // Called once on app startup (web only) to complete the Firebase redirect.
+  // Returns true if a pending redirect was found and the user was signed in.
+  Future<bool> completeWebRedirect() async {
+    if (!kIsWeb) return false;
     try {
       final cred = await _auth.getRedirectResult();
-      if (cred.user == null) return null;
-      return await _saveGoogleUser(cred);
-    } catch (_) {
-      return null;
+      if (cred.user == null) return false;
+      // Try saving to Firestore in background (don't block auth routing)
+      _saveGoogleUser(cred).catchError((_) => null);
+      return true;
+    } catch (e) {
+      // Log error but don't block auth state
+      // ignore: avoid_print
+      print('[Auth] getRedirectResult error: $e');
+      return false;
     }
   }
+
+  // Keep old name for compatibility
+  Future<UserModel?> getWebRedirectResult() => completeWebRedirect().then((_) => null);
 
   Future<UserModel?> _saveGoogleUser(UserCredential cred) async {
     final uid = cred.user!.uid;
