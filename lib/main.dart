@@ -13,6 +13,7 @@ import 'views/auth/login_view.dart';
 import 'views/home_view.dart';
 import 'utils/app_theme.dart';
 import 'firebase_options.dart';
+import 'repositories/auth_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,11 +64,40 @@ class HealthApp extends StatelessWidget {
   }
 }
 
-class AuthGuard extends StatelessWidget {
+class AuthGuard extends StatefulWidget {
   const AuthGuard({super.key});
 
   @override
+  State<AuthGuard> createState() => _AuthGuardState();
+}
+
+class _AuthGuardState extends State<AuthGuard> {
+  final _repo = AuthRepository();
+  bool _handledRedirect = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _handleWebRedirect();
+  }
+
+  Future<void> _handleWebRedirect() async {
+    await _repo.getWebRedirectResult();
+    if (mounted) setState(() => _handledRedirect = true);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Show spinner until we've checked for a pending redirect result
+    if (!_handledRedirect) {
+      return const Scaffold(
+        backgroundColor: AppColors.slateBase,
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.cyan),
+        ),
+      );
+    }
+
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {

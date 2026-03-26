@@ -86,26 +86,41 @@ class AuthRepository {
 
   // ── Google Sign-In ────────────────────────────────────────────────────────
   Future<UserModel?> signInWithGoogle() async {
-    UserCredential cred;
-
     if (kIsWeb) {
-      // Native Firebase Web Auth Flow
+      // On web, redirect the whole page to Google — avoids all popup/COOP issues.
+      // The result is picked up in getRedirectResult() on the next app load.
       final provider = GoogleAuthProvider();
-      cred = await _auth.signInWithPopup(provider);
-    } else {
-      // Mobile Google Sign-In Flow
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
-
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      cred = await _auth.signInWithCredential(credential);
+      await _auth.signInWithRedirect(provider);
+      return null; // page will redirect; result handled in getWebRedirectResult()
     }
 
+    // Mobile Google Sign-In Flow
+    final googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) return null;
+
+    final googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final cred = await _auth.signInWithCredential(credential);
+    return await _saveGoogleUser(cred);
+  }
+
+  // Called once on app startup (web only) to pick up the redirect result.
+  Future<UserModel?> getWebRedirectResult() async {
+    if (!kIsWeb) return null;
+    try {
+      final cred = await _auth.getRedirectResult();
+      if (cred.user == null) return null;
+      return await _saveGoogleUser(cred);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<UserModel?> _saveGoogleUser(UserCredential cred) async {
     final uid = cred.user!.uid;
 
     // Check if user already exists in Firestore
