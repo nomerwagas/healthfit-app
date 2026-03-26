@@ -151,22 +151,22 @@ class _ProfileViewState extends State<ProfileView> {
     if (user == null) {
       return Center(
         child: CircularProgressIndicator(
-          color: isDark ? AppColors.gold : AppColors.goldDark,
+          color: isDark ? AppColors.cyan : AppColors.cyanDark,
         ),
       );
     }
 
-    final cardBg = isDark ? AppColors.black3 : AppColors.white;
+    final cardBg = isDark ? AppColors.slateSurfacePlus : AppColors.white;
     final cardBorder =
-        isDark ? AppColors.borderGoldDark : AppColors.borderGoldLight;
-    final fieldBg = isDark ? AppColors.black4 : AppColors.offWhite;
-    final goldCol = isDark ? AppColors.gold : AppColors.goldDark;
+        isDark ? AppColors.borderCyanDark : AppColors.borderCyanLight;
+    final fieldBg = isDark ? AppColors.slateSurfaceHighlight : AppColors.offWhite;
+    final goldCol = isDark ? AppColors.cyan : AppColors.cyanDark;
     final textCol = isDark ? AppColors.textLight : AppColors.textDark;
     final mutedCol =
         isDark ? AppColors.textLightMuted : AppColors.textDarkMuted;
-    final statBg = isDark ? AppColors.black3 : AppColors.lightSurf;
+    final statBg = isDark ? AppColors.slateSurfacePlus : AppColors.lightSurf;
     final statBorder =
-        isDark ? AppColors.borderGold60 : AppColors.borderGoldLight;
+        isDark ? AppColors.borderCyan60 : AppColors.borderCyanLight;
     final errorCol = isDark ? const Color(0xFFFF5F5F) : AppColors.error;
 
     return SingleChildScrollView(
@@ -211,7 +211,7 @@ class _ProfileViewState extends State<ProfileView> {
                       BoxDecoration(shape: BoxShape.circle, color: goldCol),
                   child: Icon(Icons.camera_alt,
                       size: 14,
-                      color: isDark ? AppColors.black : AppColors.white),
+                      color: isDark ? AppColors.slateBase : AppColors.white),
                 ),
               ),
             ),
@@ -410,7 +410,7 @@ class _ProfileViewState extends State<ProfileView> {
                           child: CircularProgressIndicator(
                               strokeWidth: 2,
                               color:
-                                  isDark ? AppColors.black : AppColors.white))
+                                  isDark ? AppColors.slateBase : AppColors.white))
                       : const Text('SAVE CHANGES'),
                 ),
               ]),
@@ -472,8 +472,8 @@ class _ProfileViewState extends State<ProfileView> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? AppColors.borderGoldDark.withOpacity(0.15)
-                      : AppColors.borderGoldLight.withOpacity(0.3),
+                      ? AppColors.borderCyanDark.withOpacity(0.15)
+                      : AppColors.borderCyanLight.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: cardBorder, width: 0.5),
                 ),

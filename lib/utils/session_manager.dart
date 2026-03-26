@@ -106,16 +106,16 @@ class SessionManager {
           });
 
           final isDark = Theme.of(context).brightness == Brightness.dark;
-          final goldCol = isDark ? AppColors.gold : AppColors.goldDark;
+          final goldCol = isDark ? AppColors.cyan : AppColors.cyanDark;
           final textCol = isDark ? AppColors.textLight : AppColors.textDark;
           final mutedCol =
               isDark ? AppColors.textLightMuted : AppColors.textDarkMuted;
-          final cardBg = isDark ? AppColors.black3 : AppColors.white;
+          final cardBg = isDark ? AppColors.slateSurfacePlus : AppColors.white;
           final borderCol =
-              isDark ? AppColors.borderGoldDark : AppColors.borderGoldLight;
+              isDark ? AppColors.borderCyanDark : AppColors.borderCyanLight;
           final iconBg = isDark
-              ? AppColors.borderGoldDark.withOpacity(0.2)
-              : AppColors.borderGoldLight.withOpacity(0.4);
+              ? AppColors.borderCyanDark.withOpacity(0.2)
+              : AppColors.borderCyanLight.withOpacity(0.4);
           final progress = countdown / 30.0;
 
           return Dialog(
@@ -195,7 +195,7 @@ class SessionManager {
                     style: FilledButton.styleFrom(
                       backgroundColor: goldCol,
                       foregroundColor:
-                          isDark ? AppColors.black : AppColors.white,
+                          isDark ? AppColors.slateBase : AppColors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),

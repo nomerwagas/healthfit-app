@@ -11,18 +11,18 @@ class WeatherCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final goldColor = isDark ? AppColors.gold : AppColors.goldDark;
+    final goldColor = isDark ? AppColors.cyan : AppColors.cyanDark;
     final textColor = isDark ? AppColors.textLight : AppColors.textDark;
     final mutedColor =
         isDark ? AppColors.textLightMuted : AppColors.textDarkMuted;
-    final cardBg = isDark ? AppColors.black3 : AppColors.white;
+    final cardBg = isDark ? AppColors.slateSurfacePlus : AppColors.white;
     final cardBorder =
-        isDark ? AppColors.borderGold60 : AppColors.borderGoldLight;
+        isDark ? AppColors.borderCyan60 : AppColors.borderCyanLight;
     final iconBg = isDark
-        ? AppColors.borderGoldDark.withOpacity(0.2)
-        : AppColors.borderGoldLight.withOpacity(0.5);
+        ? AppColors.borderCyanDark.withOpacity(0.2)
+        : AppColors.borderCyanLight.withOpacity(0.5);
     final divider =
-        isDark ? AppColors.borderGoldDark : AppColors.borderGoldLight;
+        isDark ? AppColors.borderCyanDark : AppColors.borderCyanLight;
 
     return Container(
       width: double.infinity,
@@ -42,8 +42,8 @@ class WeatherCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                   color: isDark
-                      ? AppColors.borderGoldDark
-                      : AppColors.borderGoldLight,
+                      ? AppColors.borderCyanDark
+                      : AppColors.borderCyanLight,
                   width: 0.8),
             ),
             child: Image.network(

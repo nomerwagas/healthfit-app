@@ -47,6 +47,7 @@ ARG FIREBASE_PROJECT_ID
 ARG FIREBASE_STORAGE_BUCKET
 ARG FIREBASE_MESSAGING_SENDER_ID
 ARG FIREBASE_APP_ID
+ARG GOOGLE_CLIENT_ID
 
 RUN flutter build web --release \
     --dart-define=WEATHER_API_KEY=${WEATHER_API_KEY} \
@@ -55,7 +56,8 @@ RUN flutter build web --release \
     --dart-define=FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID} \
     --dart-define=FIREBASE_STORAGE_BUCKET=${FIREBASE_STORAGE_BUCKET} \
     --dart-define=FIREBASE_MESSAGING_SENDER_ID=${FIREBASE_MESSAGING_SENDER_ID} \
-    --dart-define=FIREBASE_APP_ID=${FIREBASE_APP_ID}
+    --dart-define=FIREBASE_APP_ID=${FIREBASE_APP_ID} \
+    --dart-define=GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
 
 # ── Stage 2: Serve ───────────────────────────────────────────────────────────
 FROM nginx:alpine

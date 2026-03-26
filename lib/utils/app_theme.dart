@@ -50,6 +50,23 @@ class AppColors {
   static const white85 = Color(0xD9FFFFFF);
   static const black07 = Color(0x12000000);
   static const black15 = Color(0x26000000);
+
+  // ── Celestial Cyan palette (New Dark Mode) ────────────────────────────────
+  static const cyan = Color(0xFF00D1FF);
+  static const cyanLight = Color(0xFF66E3FF);
+  static const cyanDark = Color(0xFF009CBF);
+  static const cyanDeep = Color(0xFF006B82);
+
+  // ── Celestial Slate palette (New Dark Mode Backgrounds) ───────────────────
+  static const slateBase = Color(0xFF07121A);
+  static const slateSurface = Color(0xFF0E1A24);
+  static const slateSurfacePlus = Color(0xFF152330);
+  static const slateSurfaceHighlight = Color(0xFF203244);
+
+  // ── Celestial Borders (New Dark Mode) ─────────────────────────────────────
+  static const borderCyanDark = Color(0x3300D1FF); // cyan 20% — dark mode
+  static const borderCyan60 = Color(0x9900D1FF); // cyan 60% — emphasis
+  static const borderCyanLight = Color(0x4000D1FF); // cyan 25% — light mode
 }
 
 class AppTheme {
@@ -63,9 +80,9 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.offWhite,
 
       colorScheme: const ColorScheme.light(
-        primary: AppColors.goldDark,
+        primary: AppColors.cyanDark,
         onPrimary: AppColors.white,
-        secondary: AppColors.gold,
+        secondary: AppColors.cyan,
         onSecondary: AppColors.white,
         surface: AppColors.white,
         onSurface: AppColors.textDark,
@@ -87,19 +104,19 @@ class AppTheme {
           fontWeight: FontWeight.w700,
           letterSpacing: 1.2,
         ),
-        iconTheme: IconThemeData(color: AppColors.goldDark, size: 20),
+        iconTheme: IconThemeData(color: AppColors.cyanDark, size: 20),
       ),
 
       // ── Bottom Navigation ───────────────────────────────────────────────
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.white,
-        indicatorColor: AppColors.borderGoldLight,
+        indicatorColor: AppColors.borderCyanLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return TextStyle(
-            color: selected ? AppColors.goldDark : AppColors.textDarkHint,
+            color: selected ? AppColors.cyanDark : AppColors.textDarkHint,
             fontSize: 9,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
             letterSpacing: 1,
@@ -108,7 +125,7 @@ class AppTheme {
         iconTheme: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return IconThemeData(
-            color: selected ? AppColors.goldDark : AppColors.textDarkHint,
+            color: selected ? AppColors.cyanDark : AppColors.textDarkHint,
             size: 22,
           );
         }),
@@ -120,7 +137,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: const BorderSide(color: AppColors.borderGoldLight, width: 0.8),
+          side: const BorderSide(color: AppColors.borderCyanLight, width: 0.8),
         ),
       ),
 
@@ -131,25 +148,25 @@ class AppTheme {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         labelStyle: const TextStyle(
-            color: AppColors.goldDark,
+            color: AppColors.cyanDark,
             fontSize: 13,
             fontWeight: FontWeight.w500),
         hintStyle: const TextStyle(color: AppColors.textDarkHint, fontSize: 13),
-        prefixIconColor: AppColors.goldDark,
+        prefixIconColor: AppColors.cyanDark,
         suffixIconColor: AppColors.textDarkHint,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
-              const BorderSide(color: AppColors.borderGoldLight, width: 0.8),
+              const BorderSide(color: AppColors.borderCyanLight, width: 0.8),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
-              const BorderSide(color: AppColors.borderGoldLight, width: 0.8),
+              const BorderSide(color: AppColors.borderCyanLight, width: 0.8),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.cyan, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -160,7 +177,7 @@ class AppTheme {
       // ── Filled Button ───────────────────────────────────────────────────
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.goldDark,
+          backgroundColor: AppColors.cyanDark,
           foregroundColor: AppColors.white,
           padding: const EdgeInsets.symmetric(vertical: 15),
           textStyle: const TextStyle(
@@ -173,8 +190,8 @@ class AppTheme {
       // ── Outlined Button ─────────────────────────────────────────────────
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.goldDark,
-          side: const BorderSide(color: AppColors.gold, width: 0.8),
+          foregroundColor: AppColors.cyanDark,
+          side: const BorderSide(color: AppColors.cyan, width: 0.8),
           padding: const EdgeInsets.symmetric(vertical: 13),
           textStyle: const TextStyle(
               fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: 0.5),
@@ -186,7 +203,7 @@ class AppTheme {
       // ── Text Button ─────────────────────────────────────────────────────
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.goldDark,
+          foregroundColor: AppColors.cyanDark,
           textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         ),
       ),
@@ -199,14 +216,14 @@ class AppTheme {
                 : AppColors.textDarkHint),
         trackColor: WidgetStateProperty.resolveWith((states) =>
             states.contains(WidgetState.selected)
-                ? AppColors.gold
+                ? AppColors.cyan
                 : AppColors.lightSurf2),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
 
       // ── Divider ─────────────────────────────────────────────────────────
       dividerTheme: const DividerThemeData(
-          color: AppColors.borderGoldLight, thickness: 0.8),
+          color: AppColors.borderCyanLight, thickness: 0.8),
 
       // ── Text ────────────────────────────────────────────────────────────
       textTheme: const TextTheme(
@@ -230,7 +247,7 @@ class AppTheme {
         bodyMedium: TextStyle(color: AppColors.textDark),
         bodySmall: TextStyle(color: AppColors.textDarkMuted),
         labelLarge: TextStyle(
-            color: AppColors.goldDark,
+            color: AppColors.cyanDark,
             fontWeight: FontWeight.w700,
             letterSpacing: 1),
         labelMedium: TextStyle(color: AppColors.textDarkMuted),
@@ -253,7 +270,7 @@ class AppTheme {
         backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.borderGoldLight),
+          side: const BorderSide(color: AppColors.borderCyanLight),
         ),
         titleTextStyle: const TextStyle(
             color: AppColors.textDark,
@@ -266,29 +283,29 @@ class AppTheme {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // DARK THEME — Black + Gold
+  // DARK THEME — Slate + Cyan
   // ══════════════════════════════════════════════════════════════════════════
   static ThemeData get dark {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.black,
+      scaffoldBackgroundColor: AppColors.slateBase,
 
       colorScheme: const ColorScheme.dark(
-        primary: AppColors.gold,
-        onPrimary: AppColors.black,
-        secondary: AppColors.goldLight,
-        onSecondary: AppColors.black,
-        surface: AppColors.black2,
+        primary: AppColors.cyan,
+        onPrimary: AppColors.slateBase,
+        secondary: AppColors.cyanLight,
+        onSecondary: AppColors.slateBase,
+        surface: AppColors.slateSurface,
         onSurface: AppColors.textLight,
-        surfaceContainer: AppColors.black3,
+        surfaceContainer: AppColors.slateSurfacePlus,
         error: Color(0xFFFF5F5F),
         onError: AppColors.white,
       ),
 
       // ── AppBar ─────────────────────────────────────────────────────────
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.black,
+        backgroundColor: AppColors.slateBase,
         foregroundColor: AppColors.textLight,
         elevation: 0,
         shadowColor: Colors.transparent,
@@ -299,19 +316,19 @@ class AppTheme {
           fontWeight: FontWeight.w700,
           letterSpacing: 1.2,
         ),
-        iconTheme: IconThemeData(color: AppColors.gold, size: 20),
+        iconTheme: IconThemeData(color: AppColors.cyan, size: 20),
       ),
 
       // ── Bottom Navigation ───────────────────────────────────────────────
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.black,
+        backgroundColor: AppColors.slateBase,
         indicatorColor: AppColors.white07,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return TextStyle(
-            color: selected ? AppColors.gold : AppColors.textLightHint,
+            color: selected ? AppColors.cyan : AppColors.textLightHint,
             fontSize: 9,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
             letterSpacing: 1,
@@ -320,7 +337,7 @@ class AppTheme {
         iconTheme: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return IconThemeData(
-            color: selected ? AppColors.gold : AppColors.textLightHint,
+            color: selected ? AppColors.cyan : AppColors.textLightHint,
             size: 22,
           );
         }),
@@ -328,39 +345,39 @@ class AppTheme {
 
       // ── Card ───────────────────────────────────────────────────────────
       cardTheme: CardThemeData(
-        color: AppColors.black3,
+        color: AppColors.slateSurfacePlus,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: const BorderSide(color: AppColors.borderGoldDark, width: 0.5),
+          side: const BorderSide(color: AppColors.borderCyanDark, width: 0.5),
         ),
       ),
 
       // ── Input ──────────────────────────────────────────────────────────
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.black3,
+        fillColor: AppColors.slateSurfacePlus,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         labelStyle: const TextStyle(
-            color: AppColors.gold, fontSize: 13, fontWeight: FontWeight.w500),
+            color: AppColors.cyan, fontSize: 13, fontWeight: FontWeight.w500),
         hintStyle:
             const TextStyle(color: AppColors.textLightHint, fontSize: 13),
-        prefixIconColor: AppColors.gold,
+        prefixIconColor: AppColors.cyan,
         suffixIconColor: AppColors.textLightHint,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
-              const BorderSide(color: AppColors.borderGoldDark, width: 0.5),
+              const BorderSide(color: AppColors.borderCyanDark, width: 0.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
-              const BorderSide(color: AppColors.borderGoldDark, width: 0.5),
+              const BorderSide(color: AppColors.borderCyanDark, width: 0.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.cyan, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -371,8 +388,8 @@ class AppTheme {
       // ── Filled Button ───────────────────────────────────────────────────
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.gold,
-          foregroundColor: AppColors.black,
+          backgroundColor: AppColors.cyan,
+          foregroundColor: AppColors.slateBase,
           padding: const EdgeInsets.symmetric(vertical: 15),
           textStyle: const TextStyle(
               fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 1.2),
@@ -384,8 +401,8 @@ class AppTheme {
       // ── Outlined Button ─────────────────────────────────────────────────
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.gold,
-          side: const BorderSide(color: AppColors.borderGold60, width: 0.5),
+          foregroundColor: AppColors.cyan,
+          side: const BorderSide(color: AppColors.borderCyan60, width: 0.5),
           padding: const EdgeInsets.symmetric(vertical: 13),
           textStyle: const TextStyle(
               fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: 0.5),
@@ -397,7 +414,7 @@ class AppTheme {
       // ── Text Button ─────────────────────────────────────────────────────
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.gold,
+          foregroundColor: AppColors.cyan,
           textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         ),
       ),
@@ -406,18 +423,18 @@ class AppTheme {
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) =>
             states.contains(WidgetState.selected)
-                ? AppColors.black
+                ? AppColors.slateBase
                 : AppColors.textLightHint),
         trackColor: WidgetStateProperty.resolveWith((states) =>
             states.contains(WidgetState.selected)
-                ? AppColors.gold
+                ? AppColors.cyan
                 : AppColors.white15),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
 
       // ── Divider ─────────────────────────────────────────────────────────
       dividerTheme: const DividerThemeData(
-          color: AppColors.borderGoldDark, thickness: 0.5),
+          color: AppColors.borderCyanDark, thickness: 0.5),
 
       // ── Text ────────────────────────────────────────────────────────────
       textTheme: const TextTheme(
@@ -441,7 +458,7 @@ class AppTheme {
         bodyMedium: TextStyle(color: AppColors.textLightMuted),
         bodySmall: TextStyle(color: AppColors.textLightHint),
         labelLarge: TextStyle(
-            color: AppColors.gold,
+            color: AppColors.cyan,
             fontWeight: FontWeight.w700,
             letterSpacing: 1),
         labelMedium: TextStyle(color: AppColors.textLightMuted),
@@ -451,22 +468,22 @@ class AppTheme {
 
       // ── Snackbar ────────────────────────────────────────────────────────
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.black3,
+        backgroundColor: AppColors.slateSurfacePlus,
         contentTextStyle:
             const TextStyle(color: AppColors.textLight, fontSize: 13),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
-          side: const BorderSide(color: AppColors.borderGoldDark),
+          side: const BorderSide(color: AppColors.borderCyanDark),
         ),
         behavior: SnackBarBehavior.floating,
       ),
 
       // ── Dialog ──────────────────────────────────────────────────────────
       dialogTheme: DialogThemeData(
-        backgroundColor: AppColors.black3,
+        backgroundColor: AppColors.slateSurfacePlus,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.borderGoldDark),
+          side: const BorderSide(color: AppColors.borderCyanDark),
         ),
         titleTextStyle: const TextStyle(
             color: AppColors.textLight,

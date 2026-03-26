@@ -67,17 +67,17 @@ class _RegisterViewState extends State<RegisterView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Adaptive colors
-    final goldCol = isDark ? AppColors.gold : AppColors.goldDark;
+    final goldCol = isDark ? AppColors.cyan : AppColors.cyanDark;
     final textCol = isDark ? AppColors.textLight : AppColors.textDark;
     final mutedCol =
         isDark ? AppColors.textLightMuted : AppColors.textDarkMuted;
     final hintCol = isDark ? AppColors.textLightHint : AppColors.textDarkHint;
     final borderCol =
-        isDark ? AppColors.borderGoldDark : AppColors.borderGoldLight;
-    final headerBg = isDark ? AppColors.white07 : AppColors.lightSurf;
+        isDark ? AppColors.borderCyanDark : AppColors.borderCyanLight;
+    final headerBg = isDark ? AppColors.slateSurfaceHighlight : AppColors.lightSurf;
     final passHintBg = isDark
-        ? AppColors.borderGoldDark.withOpacity(0.15)
-        : AppColors.borderGoldLight.withOpacity(0.3);
+        ? AppColors.borderCyanDark.withOpacity(0.15)
+        : AppColors.borderCyanLight.withOpacity(0.3);
 
     return Scaffold(
       appBar: AppBar(
@@ -237,7 +237,7 @@ class _RegisterViewState extends State<RegisterView> {
                         width: 20,
                         child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: isDark ? AppColors.black : AppColors.white))
+                            color: isDark ? AppColors.slateBase : AppColors.white))
                     : const Text('CREATE ACCOUNT'),
               ),
               const SizedBox(height: 16),
@@ -274,8 +274,8 @@ class _RegisterViewState extends State<RegisterView> {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final borderCol =
-        isDark ? AppColors.borderGoldDark : AppColors.borderGoldLight;
-    final bgCol = isDark ? AppColors.black3 : AppColors.offWhite;
+        isDark ? AppColors.borderCyanDark : AppColors.borderCyanLight;
+    final bgCol = isDark ? AppColors.slateSurfacePlus : AppColors.offWhite;
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(

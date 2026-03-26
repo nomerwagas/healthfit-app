@@ -27,7 +27,7 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Color(0xFF0A0A0A),
+    systemNavigationBarColor: AppColors.slateBase,
     systemNavigationBarIconBrightness: Brightness.light,
   ));
 
@@ -73,9 +73,9 @@ class AuthGuard extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            backgroundColor: Color(0xFF0A0A0A),
+            backgroundColor: AppColors.slateBase,
             body: Center(
-              child: CircularProgressIndicator(color: Color(0xFFC9A84C)),
+              child: CircularProgressIndicator(color: AppColors.cyan),
             ),
           );
         }

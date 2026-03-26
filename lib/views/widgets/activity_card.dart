@@ -13,16 +13,16 @@ class ActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final goldColor = isDark ? AppColors.gold : AppColors.goldDark;
+    final goldColor = isDark ? AppColors.cyan : AppColors.cyanDark;
     final textColor = isDark ? AppColors.textLight : AppColors.textDark;
     final mutedColor =
         isDark ? AppColors.textLightMuted : AppColors.textDarkMuted;
-    final cardBg = isDark ? AppColors.black3 : AppColors.white;
+    final cardBg = isDark ? AppColors.slateSurfacePlus : AppColors.white;
     final cardBorder =
-        isDark ? AppColors.borderGoldDark : AppColors.borderGoldLight;
+        isDark ? AppColors.borderCyanDark : AppColors.borderCyanLight;
     final iconBg = isDark
-        ? AppColors.borderGoldDark.withOpacity(0.2)
-        : AppColors.borderGoldLight.withOpacity(0.4);
+        ? AppColors.borderCyanDark.withOpacity(0.2)
+        : AppColors.borderCyanLight.withOpacity(0.4);
 
     return GestureDetector(
       onTap: () => _openVideo(context),
@@ -71,7 +71,7 @@ class ActivityCard extends StatelessWidget {
                     textColor: _intensityTextColor(activity.intensity, isDark)),
                 const SizedBox(width: 6),
                 _Chip(activity.duration,
-                    isDark ? AppColors.black4 : AppColors.lightSurf,
+                    isDark ? AppColors.slateSurfaceHighlight : AppColors.lightSurf,
                     textColor: mutedColor, border: cardBorder),
               ]),
             ]),
@@ -85,9 +85,9 @@ class ActivityCard extends StatelessWidget {
             height: 36,
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isDark ? AppColors.gold : AppColors.goldDark),
+                color: isDark ? AppColors.cyan : AppColors.cyanDark),
             child: Icon(Icons.play_arrow_rounded,
-                color: isDark ? AppColors.black : AppColors.white, size: 20),
+                color: isDark ? AppColors.slateBase : AppColors.white, size: 20),
           ),
         ]),
       ),
@@ -202,14 +202,14 @@ class _VideoSheetState extends State<_VideoSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final sheetBg = isDark ? AppColors.black2 : AppColors.white;
+    final sheetBg = isDark ? AppColors.slateSurface : AppColors.white;
     final textColor = isDark ? AppColors.textLight : AppColors.textDark;
     final mutedColor =
         isDark ? AppColors.textLightMuted : AppColors.textDarkMuted;
-    final goldColor = isDark ? AppColors.gold : AppColors.goldDark;
+    final goldColor = isDark ? AppColors.cyan : AppColors.cyanDark;
     final divider =
-        isDark ? AppColors.borderGoldDark : AppColors.borderGoldLight;
-    final chipBg = isDark ? AppColors.black3 : AppColors.lightSurf;
+        isDark ? AppColors.borderCyanDark : AppColors.borderCyanLight;
+    final chipBg = isDark ? AppColors.slateSurfacePlus : AppColors.lightSurf;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.65,
@@ -290,7 +290,7 @@ class _Placeholder extends StatelessWidget {
       {required this.activity, required this.isDark, required this.textColor});
   @override
   Widget build(BuildContext context) => Container(
-        color: isDark ? AppColors.black3 : AppColors.lightSurf,
+        color: isDark ? AppColors.slateSurfacePlus : AppColors.lightSurf,
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Text(activity.emoji, style: const TextStyle(fontSize: 48)),
           const SizedBox(height: 12),

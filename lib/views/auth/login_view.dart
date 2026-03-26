@@ -88,7 +88,7 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     final vm = context.watch<AuthViewModel>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final goldColor = isDark ? AppColors.gold : AppColors.goldDark;
+    final goldColor = isDark ? AppColors.cyan : AppColors.cyanDark;
     final textColor = isDark ? AppColors.textLight : AppColors.textDark;
     final mutedColor =
         isDark ? AppColors.textLightMuted : AppColors.textDarkMuted;
@@ -161,7 +161,7 @@ class _LoginViewState extends State<LoginView> {
                                 child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     color: isDark
-                                        ? AppColors.black
+                                        ? AppColors.slateBase
                                         : AppColors.white))
                             : const Text('SIGN IN'),
                       ),
@@ -182,8 +182,8 @@ class _LoginViewState extends State<LoginView> {
                         Expanded(
                             child: Divider(
                                 color: isDark
-                                    ? AppColors.borderGoldDark
-                                    : AppColors.borderGoldLight)),
+                                    ? AppColors.borderCyanDark
+                                    : AppColors.borderCyanLight)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 14),
                           child: Text('OR',
@@ -195,8 +195,8 @@ class _LoginViewState extends State<LoginView> {
                         Expanded(
                             child: Divider(
                                 color: isDark
-                                    ? AppColors.borderGoldDark
-                                    : AppColors.borderGoldLight)),
+                                    ? AppColors.borderCyanDark
+                                    : AppColors.borderCyanLight)),
                       ]),
                       const SizedBox(height: 20),
 

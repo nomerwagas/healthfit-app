@@ -20,7 +20,7 @@ class AppLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.textLight : AppColors.textDark;
-    final goldColor = isDark ? AppColors.gold : AppColors.goldDark;
+    final goldColor = isDark ? AppColors.cyan : AppColors.cyanDark;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -75,7 +75,7 @@ class _StarPulsePainter extends CustomPainter {
 
     // Outer gold border
     final outerBorder = Paint()
-      ..color = AppColors.gold
+      ..color = AppColors.cyan
       ..style = PaintingStyle.stroke
       ..strokeWidth = w * 0.01;
     final outerRect = RRect.fromRectAndRadius(
@@ -86,7 +86,7 @@ class _StarPulsePainter extends CustomPainter {
 
     // Inner subtle border
     final innerBorder = Paint()
-      ..color = AppColors.gold.withOpacity(0.25)
+      ..color = AppColors.cyan.withOpacity(0.25)
       ..style = PaintingStyle.stroke
       ..strokeWidth = w * 0.004;
     final innerRect = RRect.fromRectAndRadius(
@@ -131,7 +131,7 @@ class _StarPulsePainter extends CustomPainter {
     canvas.drawPath(
       starPath(outerStar),
       Paint()
-        ..color = AppColors.gold
+        ..color = AppColors.cyan
         ..style = PaintingStyle.stroke
         ..strokeWidth = w * 0.01
         ..strokeJoin = StrokeJoin.round,
@@ -155,7 +155,7 @@ class _StarPulsePainter extends CustomPainter {
     canvas.drawPath(
       starPath(innerStar),
       Paint()
-        ..color = AppColors.gold.withOpacity(0.3)
+        ..color = AppColors.cyan.withOpacity(0.3)
         ..style = PaintingStyle.stroke
         ..strokeWidth = w * 0.004,
     );
@@ -183,7 +183,7 @@ class _StarPulsePainter extends CustomPainter {
     canvas.drawPath(
       pulsePath,
       Paint()
-        ..color = AppColors.gold
+        ..color = AppColors.cyan
         ..style = PaintingStyle.stroke
         ..strokeWidth = w * 0.016
         ..strokeCap = StrokeCap.round

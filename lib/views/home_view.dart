@@ -84,8 +84,8 @@ class _HomeViewState extends State<HomeView> {
             border: Border(
               top: BorderSide(
                 color: isDark
-                    ? AppColors.borderGoldDark
-                    : AppColors.borderGoldLight,
+                    ? AppColors.borderCyanDark
+                    : AppColors.borderCyanLight,
                 width: 0.8,
               ),
             ),
@@ -127,13 +127,13 @@ class _DashboardTab extends StatelessWidget {
     final userVm = context.watch<UserViewModel>();
     final weatherVm = context.watch<WeatherViewModel>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final goldCol = isDark ? AppColors.gold : AppColors.goldDark;
+    final goldCol = isDark ? AppColors.cyan : AppColors.cyanDark;
     final textCol = isDark ? AppColors.textLight : AppColors.textDark;
     final mutedCol =
         isDark ? AppColors.textLightMuted : AppColors.textDarkMuted;
-    final pillBg = isDark ? AppColors.black3 : AppColors.lightSurf;
+    final pillBg = isDark ? AppColors.slateSurfacePlus : AppColors.lightSurf;
     final pillBorder =
-        isDark ? AppColors.borderGoldDark : AppColors.borderGoldLight;
+        isDark ? AppColors.borderCyanDark : AppColors.borderCyanLight;
     final user = userVm.user;
 
     return SafeArea(

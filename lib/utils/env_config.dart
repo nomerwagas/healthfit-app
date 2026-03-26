@@ -21,6 +21,8 @@ class EnvConfig {
       String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID', defaultValue: '');
   static const String firebaseAppId =
       String.fromEnvironment('FIREBASE_APP_ID', defaultValue: '');
+  static const String googleClientId =
+      String.fromEnvironment('GOOGLE_CLIENT_ID', defaultValue: '');
 
   static const String weatherBaseUrl =
       'https://api.openweathermap.org/data/2.5';

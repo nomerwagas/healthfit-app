@@ -5,10 +5,13 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../models/user_model.dart';
 import '../services/firestore_service.dart';
 import '../services/storage_service.dart';
+import '../utils/env_config.dart';
 
 class AuthRepository {
   final _auth = FirebaseAuth.instance;
-  final _googleSignIn = GoogleSignIn();
+  final _googleSignIn = GoogleSignIn(
+    clientId: EnvConfig.googleClientId.isNotEmpty ? EnvConfig.googleClientId : null,
+  );
 
   // ── Validators ────────────────────────────────────────────────────────────
   static String? validateEmail(String email) {
