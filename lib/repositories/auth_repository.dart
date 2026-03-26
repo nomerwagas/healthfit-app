@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../models/user_model.dart';
 import '../services/firestore_service.dart';
 import '../services/storage_service.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../utils/env_config.dart';
 
 class AuthRepository {
@@ -85,16 +86,26 @@ class AuthRepository {
 
   // ── Google Sign-In ────────────────────────────────────────────────────────
   Future<UserModel?> signInWithGoogle() async {
-    final googleUser = await _googleSignIn.signIn();
-    if (googleUser == null) return null;
+    UserCredential cred;
 
-    final googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
+    if (kIsWeb) {
+      // Native Firebase Web Auth Flow
+      final provider = GoogleAuthProvider();
+      cred = await _auth.signInWithPopup(provider);
+    } else {
+      // Mobile Google Sign-In Flow
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return null;
 
-    final cred = await _auth.signInWithCredential(credential);
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      cred = await _auth.signInWithCredential(credential);
+    }
+
     final uid = cred.user!.uid;
 
     // Check if user already exists in Firestore
