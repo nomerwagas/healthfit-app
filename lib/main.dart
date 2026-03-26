@@ -73,31 +73,18 @@ class AuthGuard extends StatefulWidget {
 
 class _AuthGuardState extends State<AuthGuard> {
   final _repo = AuthRepository();
-  bool _handledRedirect = false;
 
   @override
   void initState() {
     super.initState();
-    _handleWebRedirect();
-  }
-
-  Future<void> _handleWebRedirect() async {
-    await _repo.getWebRedirectResult();
-    if (mounted) setState(() => _handledRedirect = true);
+    // Fire-and-forget: picks up the redirect result in the background
+    // and saves the Google user to Firestore if needed.
+    // Routing is handled entirely by authStateChanges() below.
+    _repo.getWebRedirectResult();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Show spinner until we've checked for a pending redirect result
-    if (!_handledRedirect) {
-      return const Scaffold(
-        backgroundColor: AppColors.slateBase,
-        body: Center(
-          child: CircularProgressIndicator(color: AppColors.cyan),
-        ),
-      );
-    }
-
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
