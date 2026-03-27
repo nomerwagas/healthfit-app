@@ -147,6 +147,9 @@ class AuthViewModel extends ChangeNotifier {
     if (msg.contains('unauthorized-domain')) {
       return 'This domain is not authorized in Firebase Auth settings.';
     }
+    if (msg.contains('ApiException: 10') || msg.contains('DEVELOPER_ERROR')) {
+      return 'Google Sign-In Android config is incomplete (SHA fingerprint/OAuth).';
+    }
     return 'Something went wrong. Please try again.';
   }
 }

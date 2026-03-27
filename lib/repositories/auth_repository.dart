@@ -6,13 +6,12 @@ import '../models/user_model.dart';
 import '../services/firestore_service.dart';
 import '../services/storage_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import '../utils/env_config.dart';
 
 class AuthRepository {
   final _auth = FirebaseAuth.instance;
-  final _googleSignIn = GoogleSignIn(
-    clientId: EnvConfig.googleClientId.isNotEmpty ? EnvConfig.googleClientId : null,
-  );
+  // On Android/iOS, rely on google-services/plist config.
+  // Passing web clientId here can break native sign-in.
+  final _googleSignIn = GoogleSignIn();
 
   // ── Validators ────────────────────────────────────────────────────────────
   static String? validateEmail(String email) {

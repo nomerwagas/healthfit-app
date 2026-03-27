@@ -22,6 +22,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   int _currentIndex = 0;
   final _cityCtrl = TextEditingController();
+  String? _lastAutoFetchedCity;
 
   @override
   void initState() {
@@ -56,10 +57,30 @@ class _HomeViewState extends State<HomeView> {
         const SnackBar(content: Text('Session expired due to inactivity.')));
   }
 
+  void _maybeAutoRefreshCity(UserViewModel userVm) {
+    final user = userVm.user;
+    final city = user?.city?.trim();
+    if (user == null || city == null || city.isEmpty) return;
+
+    final hasCityChanged = _cityCtrl.text.trim() != city;
+    final alreadyFetched = _lastAutoFetchedCity == city;
+    if (!hasCityChanged || alreadyFetched) return;
+
+    _lastAutoFetchedCity = city;
+    _cityCtrl.text = city;
+
+    final weatherVm = context.read<WeatherViewModel>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      weatherVm.fetchWeather(city, user);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final userVm = context.watch<UserViewModel>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    _maybeAutoRefreshCity(userVm);
 
     return SessionAwareWrapper(
       onSessionExpired: _onSessionExpired,
