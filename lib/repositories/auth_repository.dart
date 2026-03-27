@@ -88,6 +88,7 @@ class AuthRepository {
   Future<UserModel?> signInWithGoogle() async {
     if (kIsWeb) {
       final provider = GoogleAuthProvider();
+      provider.setCustomParameters({'prompt': 'select_account'});
       try {
         // Prefer popup on web so sign-in can complete in one flow.
         final cred = await _auth.signInWithPopup(provider);
@@ -105,6 +106,8 @@ class AuthRepository {
     }
 
     // Mobile Google Sign-In Flow
+    // Clear cached Google account so the chooser appears every time.
+    await _googleSignIn.signOut().catchError((_) {});
     final googleUser = await _googleSignIn.signIn();
     if (googleUser == null) return null;
 
@@ -168,6 +171,7 @@ class AuthRepository {
 
   // ── Sign Out ──────────────────────────────────────────────────────────────
   Future<void> signOut() async {
+    await _googleSignIn.disconnect().catchError((_) {});
     await _googleSignIn.signOut().catchError((_) {});
     await _auth.signOut();
   }
