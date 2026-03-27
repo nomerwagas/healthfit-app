@@ -87,11 +87,21 @@ class AuthRepository {
   // ── Google Sign-In ────────────────────────────────────────────────────────
   Future<UserModel?> signInWithGoogle() async {
     if (kIsWeb) {
-      // On web, redirect the whole page to Google — avoids all popup/COOP issues.
-      // The result is picked up in getRedirectResult() on the next app load.
       final provider = GoogleAuthProvider();
-      await _auth.signInWithRedirect(provider);
-      return null; // page will redirect; result handled in getWebRedirectResult()
+      try {
+        // Prefer popup on web so sign-in can complete in one flow.
+        final cred = await _auth.signInWithPopup(provider);
+        return _saveGoogleUser(cred);
+      } on FirebaseAuthException catch (e) {
+        // Some browsers/environments block popups; fallback to redirect.
+        if (e.code == 'popup-blocked' ||
+            e.code == 'web-context-cancelled' ||
+            e.code == 'operation-not-supported-in-this-environment') {
+          await _auth.signInWithRedirect(provider);
+          return null; // Redirect result will be completed on next load.
+        }
+        rethrow;
+      }
     }
 
     // Mobile Google Sign-In Flow
@@ -115,7 +125,7 @@ class AuthRepository {
     try {
       final cred = await _auth.getRedirectResult();
       if (cred.user == null) return false;
-      // Try saving to Firestore in background (don't block auth routing)
+      // Keep auth state responsive even if profile save fails.
       _saveGoogleUser(cred).catchError((_) => null);
       return true;
     } catch (e) {

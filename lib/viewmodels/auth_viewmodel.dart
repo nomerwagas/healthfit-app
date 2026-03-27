@@ -138,6 +138,15 @@ class AuthViewModel extends ChangeNotifier {
     if (msg.contains('too-many-requests')) {
       return 'Too many attempts. Please try again later.';
     }
+    if (msg.contains('popup-closed-by-user')) {
+      return 'Google sign-in was canceled.';
+    }
+    if (msg.contains('popup-blocked')) {
+      return 'Popup was blocked. Please allow popups and try again.';
+    }
+    if (msg.contains('unauthorized-domain')) {
+      return 'This domain is not authorized in Firebase Auth settings.';
+    }
     return 'Something went wrong. Please try again.';
   }
 }
