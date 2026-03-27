@@ -30,6 +30,7 @@ class UserModel {
     return 'Obese';
   }
 
+  /// Age groups (per lab matrix): < 50 vs >= 50.
   String get ageGroup => age >= 50 ? 'senior' : 'young';
 
   factory UserModel.fromMap(Map<String, dynamic> map) {

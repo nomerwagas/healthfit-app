@@ -1,5 +1,7 @@
 // lib/models/activity_model.dart
 
+import 'dart:math';
+
 class ActivityModel {
   final String title;
   final String description;
@@ -21,22 +23,44 @@ class ActivityModel {
   // Matrix: weatherCondition × ageGroup × weightCategory → 3 suggestions
   static List<ActivityModel> getSuggestions({
     required String weatherCondition,
-    required String ageGroup, // 'young' | 'senior'
+    required String ageGroup, // 'young' (<50) | 'senior' (>=50)
     required String
         weightCategory, // 'Normal' | 'Overweight' | 'Obese' | 'Underweight'
+    int seed = 0,
   }) {
     final w = weatherCondition.toLowerCase();
     final isOverweight =
         weightCategory == 'Overweight' || weightCategory == 'Obese';
     final isUnderweight = weightCategory == 'Underweight';
 
+    List<ActivityModel> pick3(List<ActivityModel> options) {
+      // Deterministic shuffle so small profile changes can change results,
+      // while keeping outputs stable for the same inputs.
+      final r = Random(
+        seed ^
+            w.hashCode ^
+            ageGroup.hashCode ^
+            weightCategory.hashCode,
+      );
+      final list = List<ActivityModel>.from(options);
+      for (var i = list.length - 1; i > 0; i--) {
+        final j = r.nextInt(i + 1);
+        final tmp = list[i];
+        list[i] = list[j];
+        list[j] = tmp;
+      }
+      return list.take(3).toList();
+    }
+
     // ── Extreme Heat ─────────────────────────────────────────────────────────
     if (w == 'extreme_heat') {
-      return [
+      // Per matrix: Extreme heat + Overweight → Swimming / Hydrated Stretching.
+      // We expand options but keep them heat-safe.
+      final options = <ActivityModel>[
         ActivityModel(
           title: 'Swimming',
           description: 'Cool off while building full-body strength. '
-              'Best exercise during extreme heat — water keeps you cool.',
+              'Best during extreme heat—water keeps you cool.',
           intensity: 'Medium',
           duration: '40 mins',
           videoAsset: 'assets/videos/swimming.mp4',
@@ -44,8 +68,8 @@ class ActivityModel {
         ),
         ActivityModel(
           title: 'Hydrated Light Stretching',
-          description: 'Gentle full-body stretching with regular water '
-              'breaks. Improves flexibility without overheating.',
+          description: 'Gentle full-body stretching with regular water breaks. '
+              'Improves flexibility without overheating.',
           intensity: 'Low',
           duration: '20 mins',
           videoAsset: 'assets/videos/stretching.mp4',
@@ -54,119 +78,114 @@ class ActivityModel {
         ActivityModel(
           title: 'Indoor Yoga',
           description: 'Stay cool indoors while strengthening your core '
-              'and improving mental focus through mindful movement.',
+              'through mindful movement.',
           intensity: 'Low',
           duration: '30 mins',
           videoAsset: 'assets/videos/yoga.mp4',
-          emoji: '🌸',
+          emoji: '🌿',
+        ),
+        ActivityModel(
+          title: 'Breathing + Mobility',
+          description: 'Short breathing and joint-mobility session indoors. '
+              'Low sweat, high recovery.',
+          intensity: 'Low',
+          duration: '15 mins',
+          videoAsset: 'assets/videos/stretching.mp4',
+          emoji: '🫁',
+        ),
+        ActivityModel(
+          title: 'Light Indoor Walk',
+          description: 'Easy pacing indoors with fans/AC. Keep intensity low '
+              'and hydrate often.',
+          intensity: 'Low',
+          duration: '25 mins',
+          videoAsset: 'assets/videos/walking.mp4',
+          emoji: '🚶',
         ),
       ];
+
+      // If not overweight, still give heat-safe options.
+      if (!isOverweight) {
+        return pick3(options);
+      }
+      return pick3(options);
     }
 
     // ── Rain or Snow ──────────────────────────────────────────────────────────
     if (w == 'rain' || w == 'snow') {
+      // Per matrix: Rain/Snow → Indoor Yoga / Bodyweight Circuit (any age/weight).
+      // Expand with more indoor-safe options.
+      final options = <ActivityModel>[
+        ActivityModel(
+          title: 'Indoor Yoga',
+          description: 'Gentle yoga indoors to maintain flexibility and balance.',
+          intensity: 'Low',
+          duration: '30 mins',
+          videoAsset: 'assets/videos/yoga.mp4',
+          emoji: '🧘',
+        ),
+        ActivityModel(
+          title: 'Bodyweight Circuit',
+          description: 'Push-ups, squats, lunges—adjust pace to your level. '
+              'No equipment needed.',
+          intensity: isOverweight ? 'Medium' : 'High',
+          duration: '25 mins',
+          videoAsset: 'assets/videos/circuit.mp4',
+          emoji: '💪',
+        ),
+        ActivityModel(
+          title: 'Indoor Walking',
+          description: 'Walk around your home to keep your heart healthy.',
+          intensity: 'Low',
+          duration: '30 mins',
+          videoAsset: 'assets/videos/walking.mp4',
+          emoji: '🚶',
+        ),
+        ActivityModel(
+          title: 'Low-Impact Dance',
+          description: 'Fun indoor cardio with low-impact steps—great for mood.',
+          intensity: 'Medium',
+          duration: '20 mins',
+          videoAsset: 'assets/videos/hiit.mp4',
+          emoji: '💃',
+        ),
+        ActivityModel(
+          title: 'Chair Exercises',
+          description: 'Seated strength and stretching—joint-friendly option.',
+          intensity: 'Low',
+          duration: '20 mins',
+          videoAsset: 'assets/videos/stretching.mp4',
+          emoji: '🪑',
+        ),
+        ActivityModel(
+          title: 'Core + Mobility',
+          description: 'Short core activation plus mobility work to stay pain-free.',
+          intensity: 'Low',
+          duration: '18 mins',
+          videoAsset: 'assets/videos/stretching.mp4',
+          emoji: '🧩',
+        ),
+      ];
+
+      // Seniors: bias to joint-friendly options by repeating them in pool.
       if (ageGroup == 'senior') {
-        return [
-          ActivityModel(
-            title: 'Indoor Yoga',
-            description: 'Gentle yoga indoors to maintain flexibility '
-                'and balance. Perfect for rainy days at any age.',
-            intensity: 'Low',
-            duration: '30 mins',
-            videoAsset: 'assets/videos/yoga.mp4',
-            emoji: '🧘',
-          ),
-          ActivityModel(
-            title: 'Chair Exercises',
-            description: 'Seated stretching and strength exercises. '
-                'Safe, effective and easy on the joints.',
-            intensity: 'Low',
-            duration: '25 mins',
-            videoAsset: 'assets/videos/stretching.mp4',
-            emoji: '🪑',
-          ),
-          ActivityModel(
-            title: 'Indoor Walking',
-            description: 'Walk around your home or a mall. Maintains '
-                'cardiovascular health without going outdoors.',
-            intensity: 'Low',
-            duration: '30 mins',
-            videoAsset: 'assets/videos/walking.mp4',
-            emoji: '🚶',
-          ),
-        ];
-      } else if (isOverweight) {
-        return [
-          ActivityModel(
-            title: 'Indoor Yoga',
-            description: 'Low-impact full body workout. Builds strength '
-                'and flexibility without straining joints.',
-            intensity: 'Low',
-            duration: '30 mins',
-            videoAsset: 'assets/videos/yoga.mp4',
-            emoji: '🧘',
-          ),
-          ActivityModel(
-            title: 'Bodyweight Circuit',
-            description: 'Modified push-ups, squats and lunges at your '
-                'own pace. Burns calories with no equipment needed.',
-            intensity: 'Medium',
-            duration: '25 mins',
-            videoAsset: 'assets/videos/circuit.mp4',
-            emoji: '💪',
-          ),
-          ActivityModel(
-            title: 'Indoor Cycling',
-            description: 'Stationary bike or low-impact stepping indoors. '
-                'Great cardio that is gentle on the knees.',
-            intensity: 'Medium',
-            duration: '35 mins',
-            videoAsset: 'assets/videos/cycling.mp4',
-            emoji: '🚴',
-          ),
-        ];
-      } else {
-        return [
-          ActivityModel(
-            title: 'Bodyweight Circuit',
-            description: 'Push-ups, squats, lunges and burpees at home. '
-                'Maximum calorie burn with zero equipment.',
-            intensity: 'High',
-            duration: '25 mins',
-            videoAsset: 'assets/videos/circuit.mp4',
-            emoji: '💪',
-          ),
-          ActivityModel(
-            title: 'Indoor HIIT',
-            description: 'High-Intensity Interval Training you can do '
-                'in your living room. Burn fat fast on rainy days.',
-            intensity: 'High',
-            duration: '20 mins',
-            videoAsset: 'assets/videos/hiit.mp4',
-            emoji: '⚡',
-          ),
-          ActivityModel(
-            title: 'Indoor Yoga',
-            description: 'Balance your intense sessions with restorative '
-                'yoga. Improves flexibility and reduces stress.',
-            intensity: 'Low',
-            duration: '30 mins',
-            videoAsset: 'assets/videos/yoga.mp4',
-            emoji: '🧘',
-          ),
-        ];
+        options.addAll([
+          options[0],
+          options[3],
+          options[4],
+        ]);
       }
+      return pick3(options);
     }
 
     // ── Clear / Sunny / Cloudy ────────────────────────────────────────────────
     if (w == 'clear' || w == 'cloud') {
       // Senior (50+) — any weight
       if (ageGroup == 'senior') {
-        return [
+        final options = <ActivityModel>[
           ActivityModel(
             title: 'Morning Walk',
-            description: 'A brisk walk in the fresh air. Excellent '
-                'cardiovascular exercise that is gentle on joints.',
+            description: 'A steady walk in fresh air—excellent cardio that is gentle on joints.',
             intensity: 'Low',
             duration: '30 mins',
             videoAsset: 'assets/videos/walking.mp4',
@@ -174,8 +193,7 @@ class ActivityModel {
           ),
           ActivityModel(
             title: 'Tai Chi in the Park',
-            description: 'Ancient practice combining slow movements and '
-                'deep breathing. Improves balance and flexibility.',
+            description: 'Slow movements + deep breathing to improve balance and flexibility.',
             intensity: 'Low',
             duration: '45 mins',
             videoAsset: 'assets/videos/taichi.mp4',
@@ -183,19 +201,43 @@ class ActivityModel {
           ),
           ActivityModel(
             title: 'Light Stretching Outdoors',
-            description: 'Outdoor stretching under fresh air and sunlight. '
-                'Boosts mood and improves joint mobility.',
+            description: 'Outdoor stretching to improve mobility and boost mood.',
             intensity: 'Low',
             duration: '20 mins',
             videoAsset: 'assets/videos/stretching.mp4',
             emoji: '☀️',
           ),
+          ActivityModel(
+            title: 'Gentle Cycling',
+            description: 'Low-impact ride for joint-friendly cardio.',
+            intensity: 'Low',
+            duration: '30 mins',
+            videoAsset: 'assets/videos/cycling.mp4',
+            emoji: '🚴',
+          ),
+          ActivityModel(
+            title: 'Park Bench Strength',
+            description: 'Simple strength work (sit-to-stand, wall push-ups) at your own pace.',
+            intensity: 'Low',
+            duration: '20 mins',
+            videoAsset: 'assets/videos/circuit.mp4',
+            emoji: '💪',
+          ),
+          ActivityModel(
+            title: 'Outdoor Yoga',
+            description: 'A calm session outdoors for flexibility and stress reduction.',
+            intensity: 'Low',
+            duration: '30 mins',
+            videoAsset: 'assets/videos/yoga.mp4',
+            emoji: '🧘',
+          ),
         ];
+        return pick3(options);
       }
 
-      // Young + Overweight
+      // < 50 + Overweight
       if (isOverweight) {
-        return [
+        return pick3([
           ActivityModel(
             title: 'Outdoor Cycling',
             description: 'Gentle on joints and highly effective for '
@@ -223,12 +265,20 @@ class ActivityModel {
             videoAsset: 'assets/videos/walking.mp4',
             emoji: '🚶',
           ),
-        ];
+          ActivityModel(
+            title: 'Outdoor Yoga',
+            description: 'Low-impact movement to build flexibility and reduce stress.',
+            intensity: 'Low',
+            duration: '30 mins',
+            videoAsset: 'assets/videos/yoga.mp4',
+            emoji: '🧘',
+          ),
+        ]);
       }
 
-      // Young + Underweight
+      // < 50 + Underweight
       if (isUnderweight) {
-        return [
+        return pick3([
           ActivityModel(
             title: 'Outdoor Running',
             description: 'Build endurance and stimulate appetite. '
@@ -256,15 +306,22 @@ class ActivityModel {
             videoAsset: 'assets/videos/yoga.mp4',
             emoji: '🌿',
           ),
-        ];
+          ActivityModel(
+            title: 'Brisk Walking',
+            description: 'Steady outdoor walk to build stamina without overtraining.',
+            intensity: 'Low',
+            duration: '35 mins',
+            videoAsset: 'assets/videos/walking.mp4',
+            emoji: '🚶',
+          ),
+        ]);
       }
 
-      // Young + Normal/Athletic
-      return [
+      // < 50 + Normal/Athletic (per matrix: Outdoor Running / HIIT).
+      final options = <ActivityModel>[
         ActivityModel(
           title: 'Outdoor Running',
-          description: 'High-intensity cardio that builds endurance '
-              'and burns fat. Perfect on clear and sunny days.',
+          description: 'High-intensity cardio that builds endurance and burns fat.',
           intensity: 'High',
           duration: '30 mins',
           videoAsset: 'assets/videos/running.mp4',
@@ -272,8 +329,7 @@ class ActivityModel {
         ),
         ActivityModel(
           title: 'HIIT Training',
-          description: 'High-Intensity Interval Training for maximum '
-              'calorie burn in minimum time. Outdoors or indoors.',
+          description: 'Maximum calorie burn in minimum time. Great for clear days.',
           intensity: 'High',
           duration: '20 mins',
           videoAsset: 'assets/videos/hiit.mp4',
@@ -281,14 +337,38 @@ class ActivityModel {
         ),
         ActivityModel(
           title: 'Outdoor Cycling',
-          description: 'Speed cycling builds leg strength and '
-              'cardiovascular endurance. Enjoy the sunshine.',
+          description: 'Build leg strength and cardiovascular endurance outdoors.',
           intensity: 'Medium',
           duration: '45 mins',
           videoAsset: 'assets/videos/cycling.mp4',
           emoji: '🚴',
         ),
+        ActivityModel(
+          title: 'Brisk Walking',
+          description: 'A sustainable outdoor cardio session that still burns calories.',
+          intensity: 'Medium',
+          duration: '35 mins',
+          videoAsset: 'assets/videos/walking.mp4',
+          emoji: '🚶',
+        ),
+        ActivityModel(
+          title: 'Bodyweight Strength',
+          description: 'Push-ups, squats, lunges—build strength with no equipment.',
+          intensity: 'Medium',
+          duration: '25 mins',
+          videoAsset: 'assets/videos/circuit.mp4',
+          emoji: '💪',
+        ),
+        ActivityModel(
+          title: 'Outdoor Yoga',
+          description: 'Balance high-intensity training with mobility and recovery.',
+          intensity: 'Low',
+          duration: '30 mins',
+          videoAsset: 'assets/videos/yoga.mp4',
+          emoji: '🧘',
+        ),
       ];
+      return pick3(options);
     }
 
     // ── Default fallback ──────────────────────────────────────────────────────

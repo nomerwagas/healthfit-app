@@ -66,6 +66,8 @@ class WeatherViewModel extends ChangeNotifier {
       weatherCondition: _weather!.normalizedCondition,
       ageGroup: user.ageGroup,
       weightCategory: user.weightCategory,
+      // Seed makes suggestions vary when age/weight change (lab requirement).
+      seed: (user.age * 1000) ^ (user.weight * 10).round(),
     );
   }
 

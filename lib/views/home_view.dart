@@ -263,7 +263,7 @@ class _DashboardTab extends StatelessWidget {
                           child: Text(
                             'Age ${user.age}  ·  ${user.weight}kg  ·  '
                             '${user.weightCategory}  ·  '
-                            '${user.ageGroup == 'senior' ? 'Senior (50+)' : 'Young (<50)'}',
+                            '${user.ageGroup == 'senior' ? 'Age > 50' : 'Age < 50'}',
                             style: TextStyle(
                                 color: mutedCol,
                                 fontSize: 10,
