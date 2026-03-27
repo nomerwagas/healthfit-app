@@ -2,11 +2,9 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/user_model.dart';
 
-// dart:io is only available on mobile/desktop – guard for web
-import 'dart:io' if (dart.library.html) 'package:healthapp2/services/stub_io.dart';
+import 'profile_picture_upload.dart';
 
 class FirestoreService {
   static final _db = FirebaseFirestore.instance;
@@ -33,16 +31,8 @@ class FirestoreService {
 
   // ── Upload profile picture ────────────────────────────────────────────────
   static Future<String> uploadProfilePicture(String uid, dynamic file) async {
-    if (kIsWeb) {
-      // File-based uploads not supported on web; use Uint8List upload instead.
-      return '';
-    }
     final ref = _storage.ref().child('profile_pictures/$uid.jpg');
-    final task = await ref.putFile(
-      file as File,
-      SettableMetadata(contentType: 'image/jpeg'),
-    );
-    return await task.ref.getDownloadURL();
+    return uploadProfilePictureToStorage(ref, file);
   }
 
   // ── Toggle biometric preference ───────────────────────────────────────────
