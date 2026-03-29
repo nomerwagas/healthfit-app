@@ -54,7 +54,10 @@ class StorageService {
       email = await getUserEmail();
     }
     final password = await getBiometricPassword();
-    if (email == null || email.isEmpty || password == null || password.isEmpty) {
+    if (email == null ||
+        email.isEmpty ||
+        password == null ||
+        password.isEmpty) {
       return null;
     }
     return {'email': email, 'password': password};
@@ -79,14 +82,16 @@ class StorageService {
   }
 
   // ── SharedPreferences (non-sensitive data) ────────────────────────────────
-  static Future<void> saveCity(String city) async {
+  static Future<void> saveCity(String city, [String? uid]) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('city', city);
+    final key = uid != null ? 'city_$uid' : 'city';
+    await prefs.setString(key, city);
   }
 
-  static Future<String?> getCity() async {
+  static Future<String?> getCity([String? uid]) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('city');
+    final key = uid != null ? 'city_$uid' : 'city';
+    return prefs.getString(key);
   }
 
   static Future<void> saveLastLogin(DateTime dateTime) async {

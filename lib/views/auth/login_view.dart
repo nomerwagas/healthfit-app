@@ -41,10 +41,25 @@ class _LoginViewState extends State<LoginView> {
   Future<void> _checkBiometric() async {
     final enabled = await StorageService.getBiometricEnabled();
     final credentials = await StorageService.getBiometricCredentials();
-    setState(() {
-      _checking = false;
-      _biometricEnabled = enabled && credentials != null;
-    });
+    final savedEmail = await StorageService.getBiometricEmail();
+
+    if (mounted) {
+      setState(() {
+        _checking = false;
+        _biometricEnabled = enabled;
+        _biometricConfigured = credentials != null;
+        // Do not pre-fill _emailCtrl here to keep textfield clear after logout
+      });
+
+      // Auto-trigger biometric if enabled and configured
+      if (enabled && credentials != null) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted && !context.read<AuthViewModel>().isLoading) {
+            _attemptBiometric();
+          }
+        });
+      }
+    }
   }
 
   Future<void> _attemptBiometric() async {
@@ -59,24 +74,31 @@ class _LoginViewState extends State<LoginView> {
     if (result == true) {
       final creds = await StorageService.getBiometricCredentials();
       if (creds == null) {
-        _snack('Biometric verified, but saved credentials are missing. Please sign in with your email and password.');
+        _snack(
+            'Saved credentials missing. Please sign in with your password once.');
         return;
       }
 
       final savedEmail = creds['email']!.trim();
       final savedPassword = creds['password']!;
-      _snack('Biometric verified. Signing you in...');
+
+      // Update UI fields to show what's happening
+      setState(() {
+        _emailCtrl.text = savedEmail;
+        _passCtrl.text = '••••••••'; // Placeholder
+      });
+
+      _snack('Biometric verified. Signing in as $savedEmail...');
       final ok = await vm.loginWithEmail(savedEmail, savedPassword);
       if (!mounted) return;
       if (ok) {
         _goHome();
         return;
       }
-      _snack(vm.errorMessage ?? 'Biometric login failed. Please sign in with your password.');
+      _snack(vm.errorMessage ?? 'Biometric login failed.');
+      setState(() => _passCtrl.clear());
     } else if (result == null) {
-      _snack('Biometric locked. Please enter your password.');
-    } else {
-      _snack('Biometric failed (${vm.biometricFailedAttempts}/3). Try again.');
+      _snack('Biometric locked. Please use your password.');
     }
   }
 

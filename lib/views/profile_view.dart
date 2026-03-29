@@ -108,25 +108,12 @@ class _ProfileViewState extends State<ProfileView> {
         return;
       }
 
-      final result = await _localAuth.authenticate();
-      if (result != true) {
-        _snack('Biometric verification failed.');
-        return;
-      }
-
       final credentials = await StorageService.getBiometricCredentials();
       if (credentials == null) {
+        // We still enable it, but warn them.
         _snack(
-          'Please sign in once with your email and password before enabling biometric login.',
-        );
-        return;
+            'Biometric enabled! Note: You must sign in with your password once if biometric login fails later.');
       }
-
-      await StorageService.saveBiometricEnabled(true);
-      await StorageService.saveBiometricCredentials(
-        credentials['email']!,
-        credentials['password']!,
-      );
     }
 
     await context.read<UserViewModel>().toggleBiometric(uid, enabled);
@@ -149,7 +136,11 @@ class _ProfileViewState extends State<ProfileView> {
       ),
     );
     if (confirm != true) return;
+    final userVm = context.read<UserViewModel>();
+    final weatherVm = context.read<WeatherViewModel>();
     await context.read<AuthViewModel>().signOut();
+    userVm.clearUser();
+    weatherVm.reset();
     if (!mounted) return;
     Navigator.pushAndRemoveUntil(context,
         MaterialPageRoute(builder: (_) => const LoginView()), (_) => false);
@@ -177,7 +168,8 @@ class _ProfileViewState extends State<ProfileView> {
     final cardBg = isDark ? AppColors.slateSurfacePlus : AppColors.white;
     final cardBorder =
         isDark ? AppColors.borderCyanDark : AppColors.borderCyanLight;
-    final fieldBg = isDark ? AppColors.slateSurfaceHighlight : AppColors.offWhite;
+    final fieldBg =
+        isDark ? AppColors.slateSurfaceHighlight : AppColors.offWhite;
     final goldCol = isDark ? AppColors.cyan : AppColors.cyanDark;
     final textCol = isDark ? AppColors.textLight : AppColors.textDark;
     final mutedCol =
@@ -427,8 +419,9 @@ class _ProfileViewState extends State<ProfileView> {
                           width: 18,
                           child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color:
-                                  isDark ? AppColors.slateBase : AppColors.white))
+                              color: isDark
+                                  ? AppColors.slateBase
+                                  : AppColors.white))
                       : const Text('SAVE CHANGES'),
                 ),
               ]),
@@ -476,7 +469,7 @@ class _ProfileViewState extends State<ProfileView> {
             _ToggleRow(
               rowIcon: Icons.fingerprint_rounded,
               rowTitle: 'Biometric login',
-              rowSubtitle: 'Fingerprint or Face ID on next launch',
+              rowSubtitle: 'Fingerprint',
               rowValue: user.biometricEnabled,
               onRowChanged: _toggleBiometric,
               iconColor: goldCol,
@@ -487,13 +480,13 @@ class _ProfileViewState extends State<ProfileView> {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Icon(Icons.fingerprint_rounded,
-                      size: 18, color: goldCol),
+                  Icon(Icons.fingerprint_rounded, size: 18, color: goldCol),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Biometric login is enabled. Use the login screen button after signing out.',
-                      style: TextStyle(color: textCol, fontSize: 12, height: 1.4),
+                      'Biometric enabled. Password required after 3 failed attempts.',
+                      style:
+                          TextStyle(color: textCol, fontSize: 12, height: 1.4),
                     ),
                   ),
                 ],

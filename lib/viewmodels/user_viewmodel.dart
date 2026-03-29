@@ -24,6 +24,12 @@ class UserViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearUser() {
+    _user = null;
+    _error = null;
+    notifyListeners();
+  }
+
   // ── Load theme preference ─────────────────────────────────────────────────
   Future<void> loadThemePreference() async {
     final isDark = await StorageService.getDarkMode();
@@ -40,6 +46,7 @@ class UserViewModel extends ChangeNotifier {
 
   // ── Load profile from Firestore ───────────────────────────────────────────
   Future<void> loadUser(String uid) async {
+    _user = null; // Clear existing user so we don't show stale data
     _loading = true;
     notifyListeners();
     try {
@@ -69,7 +76,7 @@ class UserViewModel extends ChangeNotifier {
       if (weight != null) updates['weight'] = weight;
       if (city != null) {
         updates['city'] = city;
-        await StorageService.saveCity(city);
+        await StorageService.saveCity(city, uid);
       }
 
       await FirestoreService.updateUser(uid, updates);

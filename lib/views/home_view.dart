@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../viewmodels/weather_viewmodel.dart';
 import '../viewmodels/user_viewmodel.dart';
 import '../viewmodels/auth_viewmodel.dart';
+import '../services/storage_service.dart';
 import '../utils/session_manager.dart';
 import '../utils/app_theme.dart';
 import '../views/auth/login_view.dart';
@@ -46,19 +47,18 @@ class _HomeViewState extends State<HomeView> {
     final userVm = context.read<UserViewModel>();
     await userVm.loadUser(uid);
     final weatherVm = context.read<WeatherViewModel>();
-    await weatherVm.initialize();
-    if (userVm.user?.city != null && userVm.user!.city!.isNotEmpty) {
-      _cityCtrl.text = userVm.user!.city!;
-      await weatherVm.fetchWeather(userVm.user!.city!, userVm.user!);
-    }
-  }
+    await weatherVm.initialize(uid);
 
-  void _onSessionExpired() {
-    context.read<AuthViewModel>().signOut();
-    Navigator.pushAndRemoveUntil(context,
-        MaterialPageRoute(builder: (_) => const LoginView()), (_) => false);
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Session expired due to inactivity.')));
+    // Prefer user's profile city if set, else use the last searched city for this user
+    String? cityToFetch = userVm.user?.city;
+    if (cityToFetch == null || cityToFetch.isEmpty) {
+      cityToFetch = weatherVm.city;
+    }
+
+    if (cityToFetch.isNotEmpty && userVm.user != null) {
+      _cityCtrl.text = cityToFetch;
+      await weatherVm.fetchWeather(cityToFetch, userVm.user!);
+    }
   }
 
   void _maybeAutoRefreshCity(UserViewModel userVm) {
@@ -80,6 +80,20 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
+  void _onSessionExpired() async {
+    final authVm = context.read<AuthViewModel>();
+    final userVm = context.read<UserViewModel>();
+    final weatherVm = context.read<WeatherViewModel>();
+    await authVm.signOut();
+    userVm.clearUser();
+    weatherVm.reset();
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(context,
+        MaterialPageRoute(builder: (_) => const LoginView()), (route) => false);
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Session expired due to inactivity.')));
+  }
+
   @override
   Widget build(BuildContext context) {
     final userVm = context.watch<UserViewModel>();
@@ -92,14 +106,11 @@ class _HomeViewState extends State<HomeView> {
     }
 
     if (userVm.user == null) {
-      return SessionAwareWrapper(
-        onSessionExpired: _onSessionExpired,
-        child: Scaffold(
-          backgroundColor: isDark ? AppColors.slateBase : AppColors.white,
-          body: Center(
-            child: CircularProgressIndicator(
-              color: isDark ? AppColors.cyan : AppColors.cyanDark,
-            ),
+      return Scaffold(
+        backgroundColor: isDark ? AppColors.slateBase : AppColors.white,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: isDark ? AppColors.cyan : AppColors.cyanDark,
           ),
         ),
       );
@@ -311,6 +322,7 @@ class _DashboardTab extends StatelessWidget {
                         ),
                         onSubmitted: (city) {
                           if (userVm.user != null) {
+                            StorageService.saveCity(city, userVm.user!.uid);
                             weatherVm.fetchWeather(city, userVm.user!);
                           }
                         },
@@ -323,6 +335,8 @@ class _DashboardTab extends StatelessWidget {
                       child: FilledButton(
                         onPressed: () {
                           if (cityCtrl.text.isNotEmpty && userVm.user != null) {
+                            StorageService.saveCity(
+                                cityCtrl.text, userVm.user!.uid);
                             weatherVm.fetchWeather(cityCtrl.text, userVm.user!);
                           }
                         },

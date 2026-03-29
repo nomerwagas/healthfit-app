@@ -1,15 +1,4 @@
 // lib/utils/session_manager.dart
-//
-// Requirement (M2):
-//   - Create a SessionManager class
-//   - Use a Timer that resets on user interaction (tap/scroll)
-//   - Logic: if (inactiveTime > 5 mins) → Navigator.pushReplacement(LoginScreen)
-//
-// Implementation:
-//   • 0:00 - 4:30  → User active, timer keeps resetting on tap/scroll
-//   • 4:30         → Warning dialog appears with 30s countdown
-//   • 5:00         → Auto logout → Navigator.pushReplacement(LoginScreen)
-//   • "Stay signed in" tapped → full 5min timer restarts
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -113,8 +102,8 @@ class SessionManager {
           final borderCol =
               isDark ? AppColors.borderCyanDark : AppColors.borderCyanLight;
           final iconBg = isDark
-              ? AppColors.borderCyanDark.withValues(alpha: 51)
-              : AppColors.borderCyanLight.withValues(alpha: 102);
+              ? AppColors.borderCyanDark.withOpacity(0.2)
+              : AppColors.borderCyanLight.withOpacity(0.4);
           final progress = countdown / 30.0;
 
           return Dialog(

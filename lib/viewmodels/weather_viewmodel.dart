@@ -22,11 +22,20 @@ class WeatherViewModel extends ChangeNotifier {
   String? get error => _error;
   String get city => _city;
 
-  Future<void> initialize() async {
-    final savedCity = await StorageService.getCity();
+  Future<void> initialize([String? uid]) async {
+    final savedCity = await StorageService.getCity(uid);
     if (savedCity != null && savedCity.isNotEmpty) {
       _city = savedCity;
     }
+  }
+
+  void reset() {
+    _weather = null;
+    _activities = [];
+    _loading = false;
+    _error = null;
+    _city = '';
+    notifyListeners();
   }
 
   Future<void> fetchWeather(String city, UserModel user) async {

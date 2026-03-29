@@ -34,10 +34,10 @@ class LocalAuthService {
 
     try {
       final authenticated = await _auth.authenticate(
-        localizedReason: 'Authenticate to access your health data',
+        localizedReason: 'Scan your biometric to log in automatically',
         options: const AuthenticationOptions(
           stickyAuth: true,
-          biometricOnly: false,
+          biometricOnly: true,
         ),
       );
 
