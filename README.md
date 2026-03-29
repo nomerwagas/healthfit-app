@@ -105,7 +105,3 @@ The project includes a multi-stage `Dockerfile` and `cloudbuild.yaml` for deploy
 2. **Serve Stage:** Uses Nginx to serve the static release files securely.
 3. **CI/CD:** Automated via Google Cloud Build to Cloud Run.
 
----
-## Live Version
-It can access the live version of the HealthFit App here: 
-[HealthFit Live Deployment](https://healthfit-app-992838823494.asia-southeast1.run.app)
