@@ -18,7 +18,6 @@ import 'app_theme.dart';
 // ── SessionManager class ──────────────────────────────────────────────────────
 class SessionManager {
   // Timings — total 5 minutes as per requirement
-  static const Duration _inactivityLimit = Duration(minutes: 5); // 5 mins total
   static const Duration _warningBefore =
       Duration(seconds: 30); // warn 30s before
   static const Duration _warningAt =
@@ -114,8 +113,8 @@ class SessionManager {
           final borderCol =
               isDark ? AppColors.borderCyanDark : AppColors.borderCyanLight;
           final iconBg = isDark
-              ? AppColors.borderCyanDark.withOpacity(0.2)
-              : AppColors.borderCyanLight.withOpacity(0.4);
+              ? AppColors.borderCyanDark.withValues(alpha: 51)
+              : AppColors.borderCyanLight.withValues(alpha: 102);
           final progress = countdown / 30.0;
 
           return Dialog(

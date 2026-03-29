@@ -65,6 +65,7 @@ class AuthRepository {
 
     await FirestoreService.createUser(user);
     await StorageService.saveUserEmail(email);
+    await StorageService.saveBiometricCredentials(email, password);
     await StorageService.saveLastLogin(DateTime.now());
 
     return user;
@@ -78,6 +79,7 @@ class AuthRepository {
     );
 
     await StorageService.saveUserEmail(email);
+    await StorageService.saveBiometricCredentials(email, password);
     await StorageService.saveLastLogin(DateTime.now());
 
     return await FirestoreService.getUser(cred.user!.uid);
@@ -106,7 +108,7 @@ class AuthRepository {
 
     // Mobile Google Sign-In Flow
     // Clear cached Google account so the chooser appears every time.
-    await _googleSignIn.signOut().catchError((_) {});
+    await _googleSignIn.signOut().catchError((_) => null);
     final googleUser = await _googleSignIn.signIn();
     if (googleUser == null) return null;
 
@@ -139,7 +141,8 @@ class AuthRepository {
   }
 
   // Keep old name for compatibility
-  Future<UserModel?> getWebRedirectResult() => completeWebRedirect().then((_) => null);
+  Future<UserModel?> getWebRedirectResult() =>
+      completeWebRedirect().then((_) => null);
 
   Future<UserModel?> _saveGoogleUser(UserCredential cred) async {
     final uid = cred.user!.uid;
@@ -170,8 +173,8 @@ class AuthRepository {
 
   // ── Sign Out ──────────────────────────────────────────────────────────────
   Future<void> signOut() async {
-    await _googleSignIn.disconnect().catchError((_) {});
-    await _googleSignIn.signOut().catchError((_) {});
+    await _googleSignIn.disconnect().catchError((_) => null);
+    await _googleSignIn.signOut().catchError((_) => null);
     await _auth.signOut();
   }
 

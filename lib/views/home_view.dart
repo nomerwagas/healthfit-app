@@ -23,6 +23,7 @@ class _HomeViewState extends State<HomeView> {
   int _currentIndex = 0;
   final _cityCtrl = TextEditingController();
   String? _lastAutoFetchedCity;
+  bool _isInitialLoad = false;
 
   @override
   void initState() {
@@ -37,6 +38,9 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _load() async {
+    if (_isInitialLoad) return;
+    _isInitialLoad = true;
+
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
     final userVm = context.read<UserViewModel>();
@@ -80,6 +84,27 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     final userVm = context.watch<UserViewModel>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (userVm.user == null && !userVm.loading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _load();
+      });
+    }
+
+    if (userVm.user == null) {
+      return SessionAwareWrapper(
+        onSessionExpired: _onSessionExpired,
+        child: Scaffold(
+          backgroundColor: isDark ? AppColors.slateBase : AppColors.white,
+          body: Center(
+            child: CircularProgressIndicator(
+              color: isDark ? AppColors.cyan : AppColors.cyanDark,
+            ),
+          ),
+        ),
+      );
+    }
+
     _maybeAutoRefreshCity(userVm);
 
     return SessionAwareWrapper(

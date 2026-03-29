@@ -22,6 +22,8 @@ class _LoginViewState extends State<LoginView> {
   final _passCtrl = TextEditingController();
   bool _obscure = true;
   bool _checking = true;
+  bool _biometricEnabled = false;
+  bool _biometricConfigured = false;
 
   @override
   void initState() {
@@ -38,8 +40,11 @@ class _LoginViewState extends State<LoginView> {
 
   Future<void> _checkBiometric() async {
     final enabled = await StorageService.getBiometricEnabled();
-    setState(() => _checking = false);
-    if (enabled && mounted) _attemptBiometric();
+    final credentials = await StorageService.getBiometricCredentials();
+    setState(() {
+      _checking = false;
+      _biometricEnabled = enabled && credentials != null;
+    });
   }
 
   Future<void> _attemptBiometric() async {
@@ -48,14 +53,31 @@ class _LoginViewState extends State<LoginView> {
       _snack('Too many attempts. Please use your password.');
       return;
     }
+
     final result = await vm.authenticateWithBiometrics();
     if (!mounted) return;
-    if (result == true)
-      _goHome();
-    else if (result == null)
+    if (result == true) {
+      final creds = await StorageService.getBiometricCredentials();
+      if (creds == null) {
+        _snack('Biometric verified, but saved credentials are missing. Please sign in with your email and password.');
+        return;
+      }
+
+      final savedEmail = creds['email']!.trim();
+      final savedPassword = creds['password']!;
+      _snack('Biometric verified. Signing you in...');
+      final ok = await vm.loginWithEmail(savedEmail, savedPassword);
+      if (!mounted) return;
+      if (ok) {
+        _goHome();
+        return;
+      }
+      _snack(vm.errorMessage ?? 'Biometric login failed. Please sign in with your password.');
+    } else if (result == null) {
       _snack('Biometric locked. Please enter your password.');
-    else
+    } else {
       _snack('Biometric failed (${vm.biometricFailedAttempts}/3). Try again.');
+    }
   }
 
   void _goHome() => Navigator.pushReplacement(
@@ -66,19 +88,22 @@ class _LoginViewState extends State<LoginView> {
     final vm = context.read<AuthViewModel>();
     final ok = await vm.loginWithEmail(_emailCtrl.text.trim(), _passCtrl.text);
     if (!mounted) return;
-    if (ok)
+    if (ok) {
       _goHome();
-    else
+    } else {
       _snack(vm.errorMessage ?? 'Login failed.');
+    }
   }
 
   Future<void> _googleSignIn() async {
     final vm = context.read<AuthViewModel>();
     final ok = await vm.signInWithGoogle();
     if (!mounted) return;
-    if (ok)
+    if (ok) {
       _goHome();
-    else if (vm.errorMessage != null) _snack(vm.errorMessage!);
+    } else if (vm.errorMessage != null) {
+      _snack(vm.errorMessage!);
+    }
   }
 
   void _snack(String msg) =>
@@ -168,7 +193,7 @@ class _LoginViewState extends State<LoginView> {
                       const SizedBox(height: 12),
 
                       // ── Biometric ─────────────────────────────────────────
-                      if (vm.biometricAvailable)
+                      if (vm.biometricAvailable && _biometricEnabled)
                         OutlinedButton.icon(
                           onPressed: vm.isLoading ? null : _attemptBiometric,
                           icon: const Icon(Icons.fingerprint_rounded, size: 20),

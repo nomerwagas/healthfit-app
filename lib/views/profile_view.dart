@@ -8,6 +8,7 @@ import '../viewmodels/user_viewmodel.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/weather_viewmodel.dart';
 import '../services/local_auth_service.dart';
+import '../services/storage_service.dart';
 import '../utils/app_theme.dart';
 import '../views/auth/login_view.dart';
 
@@ -99,18 +100,35 @@ class _ProfileViewState extends State<ProfileView> {
   Future<void> _toggleBiometric(bool enabled) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
+
     if (enabled) {
       final available = await _localAuth.isBiometricAvailable();
       if (!available) {
         _snack('Biometric not available on this device.');
         return;
       }
+
       final result = await _localAuth.authenticate();
       if (result != true) {
         _snack('Biometric verification failed.');
         return;
       }
+
+      final credentials = await StorageService.getBiometricCredentials();
+      if (credentials == null) {
+        _snack(
+          'Please sign in once with your email and password before enabling biometric login.',
+        );
+        return;
+      }
+
+      await StorageService.saveBiometricEnabled(true);
+      await StorageService.saveBiometricCredentials(
+        credentials['email']!,
+        credentials['password']!,
+      );
     }
+
     await context.read<UserViewModel>().toggleBiometric(uid, enabled);
   }
 
@@ -466,21 +484,19 @@ class _ProfileViewState extends State<ProfileView> {
               subtitleColor: mutedCol,
             ),
             if (user.biometricEnabled) ...[
-              Divider(height: 1, color: cardBorder),
               const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.borderCyanDark.withOpacity(0.15)
-                      : AppColors.borderCyanLight.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: cardBorder, width: 0.5),
-                ),
-                child: Text(
-                  '✓ Active. After 3 failed attempts, password is required.',
-                  style: TextStyle(color: goldCol, fontSize: 11, height: 1.5),
-                ),
+              Row(
+                children: [
+                  Icon(Icons.fingerprint_rounded,
+                      size: 18, color: goldCol),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Biometric login is enabled. Use the login screen button after signing out.',
+                      style: TextStyle(color: textCol, fontSize: 12, height: 1.4),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
             ],

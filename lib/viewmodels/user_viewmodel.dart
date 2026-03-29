@@ -118,6 +118,16 @@ class UserViewModel extends ChangeNotifier {
   Future<void> toggleBiometric(String uid, bool enabled) async {
     await FirestoreService.setBiometricEnabled(uid, enabled);
     await StorageService.saveBiometricEnabled(enabled);
+    if (enabled && _user?.email != null) {
+      final password = await StorageService.getBiometricPassword();
+      if (password != null && password.isNotEmpty) {
+        await StorageService.saveBiometricCredentials(_user!.email, password);
+      } else {
+        await StorageService.saveBiometricEmail(_user!.email);
+      }
+    } else {
+      await StorageService.clearBiometricPreferences();
+    }
     _user = _user?.copyWith(biometricEnabled: enabled);
     notifyListeners();
   }

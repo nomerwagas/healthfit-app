@@ -9,6 +9,8 @@ class StorageService {
   );
 
   static const _keyBiometricEnabled = 'biometric_enabled';
+  static const _keyBiometricEmail = 'biometric_email';
+  static const _keyBiometricPassword = 'biometric_password';
   static const _keyUserEmail = 'user_email';
 
   // ── Secure Storage (sensitive data) ──────────────────────────────────────
@@ -22,6 +24,46 @@ class StorageService {
   static Future<bool> getBiometricEnabled() async {
     final value = await _storage.read(key: _keyBiometricEnabled);
     return value == 'true';
+  }
+
+  static Future<void> saveBiometricEmail(String email) async {
+    await _storage.write(key: _keyBiometricEmail, value: email);
+  }
+
+  static Future<String?> getBiometricEmail() async {
+    return await _storage.read(key: _keyBiometricEmail);
+  }
+
+  static Future<void> saveBiometricPassword(String password) async {
+    await _storage.write(key: _keyBiometricPassword, value: password);
+  }
+
+  static Future<String?> getBiometricPassword() async {
+    return await _storage.read(key: _keyBiometricPassword);
+  }
+
+  static Future<void> saveBiometricCredentials(
+      String email, String password) async {
+    await _storage.write(key: _keyBiometricEmail, value: email);
+    await _storage.write(key: _keyBiometricPassword, value: password);
+  }
+
+  static Future<Map<String, String>?> getBiometricCredentials() async {
+    var email = await getBiometricEmail();
+    if (email == null || email.isEmpty) {
+      email = await getUserEmail();
+    }
+    final password = await getBiometricPassword();
+    if (email == null || email.isEmpty || password == null || password.isEmpty) {
+      return null;
+    }
+    return {'email': email, 'password': password};
+  }
+
+  static Future<void> clearBiometricPreferences() async {
+    await _storage.delete(key: _keyBiometricEnabled);
+    await _storage.delete(key: _keyBiometricEmail);
+    await _storage.delete(key: _keyBiometricPassword);
   }
 
   static Future<void> saveUserEmail(String email) async {

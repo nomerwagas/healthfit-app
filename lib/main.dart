@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +13,7 @@ import 'viewmodels/weather_viewmodel.dart';
 import 'views/auth/login_view.dart';
 import 'views/home_view.dart';
 import 'utils/app_theme.dart';
-import 'firebase_options.dart';
+import 'utils/env_config.dart';
 import 'repositories/auth_repository.dart';
 
 void main() async {
@@ -32,7 +33,14 @@ void main() async {
     systemNavigationBarIconBrightness: Brightness.light,
   ));
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  if (Firebase.apps.isEmpty) {
+    if (kIsWeb) {
+      await Firebase.initializeApp(options: EnvConfig.firebaseOptions);
+    } else {
+      await Firebase.initializeApp();
+    }
+  }
+
   runApp(const HealthApp());
 }
 
