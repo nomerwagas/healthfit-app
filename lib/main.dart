@@ -12,6 +12,7 @@ import 'viewmodels/user_viewmodel.dart';
 import 'viewmodels/weather_viewmodel.dart';
 import 'views/auth/login_view.dart';
 import 'views/home_view.dart';
+import 'views/splash_view.dart';
 import 'utils/app_theme.dart';
 import 'utils/env_config.dart';
 import 'repositories/auth_repository.dart';
@@ -64,7 +65,7 @@ class HealthApp extends StatelessWidget {
             themeMode: userVm.themeMode,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
-            home: const AuthGuard(),
+            home: const SplashView(),
           );
         },
       ),
